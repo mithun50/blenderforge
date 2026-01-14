@@ -43,7 +43,8 @@ class TestGenerateMaterialFromText:
         ctx = MagicMock()
         result = generate_material_from_text(ctx, "glossy wood")
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestGenerateMaterialFromImage:
@@ -77,7 +78,8 @@ class TestGenerateMaterialFromImage:
         ctx = MagicMock()
         result = generate_material_from_image(ctx, "/invalid/path.png")
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestListMaterialPresets:
@@ -156,7 +158,8 @@ class TestCreateFromDescription:
         ctx = MagicMock()
         result = create_from_description(ctx, "something invalid")
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestModifyFromDescription:
@@ -193,7 +196,8 @@ class TestModifyFromDescription:
         ctx = MagicMock()
         result = modify_from_description(ctx, "NonExistent", "make it red")
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestAnalyzeSceneComposition:
@@ -232,7 +236,8 @@ class TestAnalyzeSceneComposition:
         ctx = MagicMock()
         result = analyze_scene_composition(ctx)
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestAutoOptimizeLighting:
@@ -334,7 +339,8 @@ class TestAutoRigCharacter:
         ctx = MagicMock()
         result = auto_rig_character(ctx, "Camera", "humanoid")
 
-        assert "Error" in result
+        data = json.loads(result)
+        assert "error" in data
 
 
 class TestAutoWeightPaint:

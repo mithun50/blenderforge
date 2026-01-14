@@ -1276,7 +1276,7 @@ def generate_material_from_text(
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error generating material: {str(e)}")
-        return f"Error generating material: {str(e)}"
+        return json.dumps({"error": f"Error generating material: {str(e)}"})
 
 
 @telemetry_tool("generate_material_from_image")
@@ -1301,7 +1301,7 @@ def generate_material_from_image(
     """
     try:
         if not os.path.exists(image_path):
-            return f"Error: Image not found at {image_path}"
+            return json.dumps({"error": f"Image not found at {image_path}"})
 
         # Read and encode image
         with open(image_path, "rb") as f:
@@ -1315,7 +1315,7 @@ def generate_material_from_image(
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error generating material from image: {str(e)}")
-        return f"Error generating material from image: {str(e)}"
+        return json.dumps({"error": f"Error generating material from image: {str(e)}"})
 
 
 @telemetry_tool("list_material_presets")
@@ -1335,7 +1335,7 @@ def list_material_presets(ctx: Context, category: str = "all") -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error listing presets: {str(e)}")
-        return f"Error listing presets: {str(e)}"
+        return json.dumps({"error": f"Error listing presets: {str(e)}"})
 
 
 # -----------------------------------------------------------------------------
@@ -1374,7 +1374,7 @@ def create_from_description(ctx: Context, description: str) -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error creating from description: {str(e)}")
-        return f"Error creating from description: {str(e)}"
+        return json.dumps({"error": f"Error creating from description: {str(e)}"})
 
 
 @telemetry_tool("modify_from_description")
@@ -1404,7 +1404,7 @@ def modify_from_description(ctx: Context, object_name: str, modification: str) -
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error modifying object: {str(e)}")
-        return f"Error modifying object: {str(e)}"
+        return json.dumps({"error": f"Error modifying object: {str(e)}"})
 
 
 # -----------------------------------------------------------------------------
@@ -1432,7 +1432,7 @@ def analyze_scene_composition(ctx: Context) -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error analyzing scene: {str(e)}")
-        return f"Error analyzing scene: {str(e)}"
+        return json.dumps({"error": f"Error analyzing scene: {str(e)}"})
 
 
 @telemetry_tool("get_improvement_suggestions")
@@ -1454,7 +1454,7 @@ def get_improvement_suggestions(ctx: Context, focus_area: str = "all") -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error getting suggestions: {str(e)}")
-        return f"Error getting suggestions: {str(e)}"
+        return json.dumps({"error": f"Error getting suggestions: {str(e)}"})
 
 
 @telemetry_tool("auto_optimize_lighting")
@@ -1480,7 +1480,7 @@ def auto_optimize_lighting(ctx: Context, style: str = "studio") -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error optimizing lighting: {str(e)}")
-        return f"Error optimizing lighting: {str(e)}"
+        return json.dumps({"error": f"Error optimizing lighting: {str(e)}"})
 
 
 # -----------------------------------------------------------------------------
@@ -1516,7 +1516,7 @@ def auto_rig_character(
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error auto-rigging: {str(e)}")
-        return f"Error auto-rigging: {str(e)}"
+        return json.dumps({"error": f"Error auto-rigging: {str(e)}"})
 
 
 @telemetry_tool("auto_weight_paint")
@@ -1541,7 +1541,7 @@ def auto_weight_paint(ctx: Context, mesh_name: str, armature_name: str) -> str:
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error weight painting: {str(e)}")
-        return f"Error weight painting: {str(e)}"
+        return json.dumps({"error": f"Error weight painting: {str(e)}"})
 
 
 @telemetry_tool("add_ik_controls")
@@ -1570,7 +1570,7 @@ def add_ik_controls(ctx: Context, armature_name: str, limb_type: str = "all") ->
         return json.dumps(result, indent=2)
     except Exception as e:
         logger.error(f"Error adding IK: {str(e)}")
-        return f"Error adding IK: {str(e)}"
+        return json.dumps({"error": f"Error adding IK: {str(e)}"})
 
 
 # Main execution
