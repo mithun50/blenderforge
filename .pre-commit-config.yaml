@@ -1,0 +1,79 @@
+# Pre-commit hooks for BlenderForge
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.0
+    hooks:
+      # Run the formatter
+      - id: ruff-format
+        name: ruff-format
+        description: "Format Python code with Ruff"
+      # Run the linter with auto-fix
+      - id: ruff
+        name: ruff-lint
+        description: "Lint Python code with Ruff"
+        args: [--fix, --exit-non-zero-on-fix]
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: trim-trailing-whitespace
+        description: "Remove trailing whitespace"
+      - id: end-of-file-fixer
+        name: fix-end-of-file
+        description: "Ensure files end with newline"
+      - id: check-yaml
+        name: check-yaml
+        description: "Validate YAML files"
+      - id: check-json
+        name: check-json
+        description: "Validate JSON files"
+      - id: check-toml
+        name: check-toml
+        description: "Validate TOML files"
+      - id: check-added-large-files
+        name: check-large-files
+        description: "Prevent large files from being committed"
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+        name: check-merge-conflict
+        description: "Check for merge conflict markers"
+      - id: debug-statements
+        name: check-debug-statements
+        description: "Check for debug statements (print, pdb, etc.)"
+      - id: check-ast
+        name: check-ast
+        description: "Verify Python files parse correctly"
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.10
+    hooks:
+      - id: bandit
+        name: bandit-security
+        description: "Security scan with Bandit"
+        args: ["-ll", "-ii", "-r", "src/"]
+        files: ^src/
+
+  # Type checking
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.13.0
+    hooks:
+      - id: mypy
+        name: mypy-typecheck
+        description: "Type check with MyPy"
+        args: [--ignore-missing-imports]
+        files: ^src/
+        additional_dependencies: []
+
+# Configuration
+ci:
+  autofix_commit_msg: "style: auto-fix pre-commit issues"
+  autofix_prs: true
+  autoupdate_commit_msg: "chore: update pre-commit hooks"
+  autoupdate_schedule: monthly
