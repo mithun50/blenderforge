@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "blenderforge": {
+      "command": "blenderforge",
+      "env": {
+        "BLENDER_HOST": "localhost",
+        "BLENDER_PORT": "9876"
+      }
+    }
+  }
+}
