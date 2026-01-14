@@ -13,6 +13,7 @@ Welcome to the BlenderForge documentation. BlenderForge connects AI assistants t
 | [Getting Started](getting-started.md) | Installation, setup, and first steps |
 | [AI Clients](ai-clients.md) | Configure Claude, ChatGPT, VS Code, Cursor, and more |
 | [Tools Reference](tools-reference.md) | Complete list of available tools |
+| [AI Features](ai-features.md) | AI Material Generator, NLP Modeling, Scene Analyzer, Auto-Rig |
 | [Asset Integrations](asset-integrations.md) | PolyHaven, Sketchfab, Hyper3D Rodin, Hunyuan3D |
 | [Architecture](architecture.md) | How BlenderForge works under the hood |
 | [Troubleshooting](troubleshooting.md) | Common issues and solutions |
@@ -44,6 +45,16 @@ AI: I'll create that for you...
 | **Take Screenshots** | Capture viewport images |
 | **Download Assets** | Get free textures, HDRIs, and 3D models |
 | **AI Generation** | Generate 3D models from text or images |
+
+### AI-Powered Features
+
+| Feature | Description |
+|---------|-------------|
+| **AI Material Generator** | Create PBR materials from text descriptions or images |
+| **Natural Language Modeling** | Create objects with plain English ("a red cube 2m tall") |
+| **AI Scene Analyzer** | Get professional critique with scores and suggestions |
+| **Smart Auto-Rig** | Automatically rig characters with proper bone hierarchies |
+| **Auto-Lighting** | Set up studio, cinematic, or dramatic lighting presets |
 
 ---
 
@@ -125,7 +136,7 @@ MCP is an **open standard** (like USB for AI tools). Any AI that "speaks MCP" ca
 
 ## Quick Links
 
-- [GitHub Repository](https://github.com/yourusername/blenderforge)
+- [GitHub Repository](https://github.com/mithun50/blenderforge)
 - [Model Context Protocol](https://modelcontextprotocol.io/)
 - [Blender Python API](https://docs.blender.org/api/current/)
 - [PolyHaven](https://polyhaven.com/)

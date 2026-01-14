@@ -1239,6 +1239,340 @@ def asset_creation_strategy() -> str:
     """
 
 
+# =============================================================================
+# AI-POWERED FEATURES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Feature 1: AI Material Generator
+# -----------------------------------------------------------------------------
+
+
+@telemetry_tool("generate_material_from_text")
+@mcp.tool()
+def generate_material_from_text(
+    ctx: Context, description: str, material_name: str = "AI_Material"
+) -> str:
+    """
+    Generate a PBR material from a text description using AI-powered keyword analysis.
+
+    Parameters:
+    - description: Natural language description of the material (e.g., "rusty metal", "polished wood", "rough stone")
+    - material_name: Name for the created material (default: "AI_Material")
+
+    Examples:
+    - "shiny red plastic"
+    - "weathered bronze with patina"
+    - "rough concrete with cracks"
+    - "smooth glass with slight tint"
+
+    Returns JSON with material properties and creation status.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "generate_material_text", {"description": description, "name": material_name}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error generating material: {str(e)}")
+        return f"Error generating material: {str(e)}"
+
+
+@telemetry_tool("generate_material_from_image")
+@mcp.tool()
+def generate_material_from_image(
+    ctx: Context, image_path: str, material_name: str = "AI_Material"
+) -> str:
+    """
+    Generate a PBR material by analyzing a reference image.
+
+    Parameters:
+    - image_path: Absolute path to the reference image
+    - material_name: Name for the created material (default: "AI_Material")
+
+    The AI will analyze the image to extract:
+    - Dominant color
+    - Estimated roughness
+    - Metallic properties
+    - Any detected patterns
+
+    Returns JSON with material properties and creation status.
+    """
+    try:
+        if not os.path.exists(image_path):
+            return f"Error: Image not found at {image_path}"
+
+        # Read and encode image
+        with open(image_path, "rb") as f:
+            image_data = base64.b64encode(f.read()).decode("ascii")
+
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "generate_material_image",
+            {"image_data": image_data, "name": material_name, "image_path": image_path},
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error generating material from image: {str(e)}")
+        return f"Error generating material from image: {str(e)}"
+
+
+@telemetry_tool("list_material_presets")
+@mcp.tool()
+def list_material_presets(ctx: Context, category: str = "all") -> str:
+    """
+    List available AI material presets by category.
+
+    Parameters:
+    - category: Filter by category (all, metal, wood, stone, fabric, glass, plastic, organic)
+
+    Returns a list of preset names with descriptions.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("list_material_presets", {"category": category})
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error listing presets: {str(e)}")
+        return f"Error listing presets: {str(e)}"
+
+
+# -----------------------------------------------------------------------------
+# Feature 2: Natural Language Modeling
+# -----------------------------------------------------------------------------
+
+
+@telemetry_tool("create_from_description")
+@mcp.tool()
+def create_from_description(ctx: Context, description: str) -> str:
+    """
+    Create 3D objects from a natural language description.
+
+    Parameters:
+    - description: Natural language description of what to create
+
+    Examples:
+    - "a red cube 2 meters tall"
+    - "a blue sphere at position 3, 0, 1"
+    - "a wooden table with 4 legs"
+    - "a simple chair"
+    - "5 cylinders in a row"
+
+    Supports:
+    - Primitives: cube, sphere, cylinder, cone, plane, torus, monkey
+    - Colors: red, blue, green, yellow, orange, purple, white, black, etc.
+    - Sizes: X meters/cm/units tall/wide/deep
+    - Positions: at X, Y, Z or relative positions
+    - Complex objects: table, chair, tree, stairs, fence
+
+    Returns JSON with created object details.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("nlp_create", {"description": description})
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error creating from description: {str(e)}")
+        return f"Error creating from description: {str(e)}"
+
+
+@telemetry_tool("modify_from_description")
+@mcp.tool()
+def modify_from_description(ctx: Context, object_name: str, modification: str) -> str:
+    """
+    Modify an existing object using natural language.
+
+    Parameters:
+    - object_name: Name of the object to modify
+    - modification: Description of the modification
+
+    Examples:
+    - "make it twice as big"
+    - "rotate 45 degrees on Z axis"
+    - "move 2 meters up"
+    - "change color to blue"
+    - "make it metallic and shiny"
+
+    Returns JSON with modification results.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "nlp_modify", {"object_name": object_name, "modification": modification}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error modifying object: {str(e)}")
+        return f"Error modifying object: {str(e)}"
+
+
+# -----------------------------------------------------------------------------
+# Feature 3: AI Scene Analyzer
+# -----------------------------------------------------------------------------
+
+
+@telemetry_tool("analyze_scene")
+@mcp.tool()
+def analyze_scene_composition(ctx: Context) -> str:
+    """
+    Analyze the current scene and provide composition, lighting, and material critique.
+
+    Returns a comprehensive analysis including:
+    - Lighting analysis (quality, shadows, color temperature)
+    - Composition analysis (balance, focal points, rule of thirds)
+    - Material analysis (consistency, realism)
+    - Overall score and specific recommendations
+
+    No parameters required - analyzes the active scene.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("analyze_scene_composition", {})
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error analyzing scene: {str(e)}")
+        return f"Error analyzing scene: {str(e)}"
+
+
+@telemetry_tool("get_improvement_suggestions")
+@mcp.tool()
+def get_improvement_suggestions(ctx: Context, focus_area: str = "all") -> str:
+    """
+    Get specific improvement suggestions for the scene.
+
+    Parameters:
+    - focus_area: Area to focus on (all, lighting, composition, materials, performance)
+
+    Returns actionable suggestions with priority levels.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "get_improvement_suggestions", {"focus_area": focus_area}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error getting suggestions: {str(e)}")
+        return f"Error getting suggestions: {str(e)}"
+
+
+@telemetry_tool("auto_optimize_lighting")
+@mcp.tool()
+def auto_optimize_lighting(ctx: Context, style: str = "studio") -> str:
+    """
+    Automatically optimize scene lighting based on a style preset.
+
+    Parameters:
+    - style: Lighting style (studio, outdoor, dramatic, soft, product, cinematic)
+
+    This will:
+    - Adjust existing lights or add new ones
+    - Set up proper key/fill/rim lighting
+    - Configure shadows and color temperature
+    - Optionally add environment lighting
+
+    Returns JSON with changes made.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command("auto_optimize_lighting", {"style": style})
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error optimizing lighting: {str(e)}")
+        return f"Error optimizing lighting: {str(e)}"
+
+
+# -----------------------------------------------------------------------------
+# Feature 4: Smart Auto-Rig
+# -----------------------------------------------------------------------------
+
+
+@telemetry_tool("auto_rig_character")
+@mcp.tool()
+def auto_rig_character(
+    ctx: Context, mesh_name: str, rig_type: str = "humanoid"
+) -> str:
+    """
+    Automatically create an armature (skeleton) for a character mesh.
+
+    Parameters:
+    - mesh_name: Name of the mesh object to rig
+    - rig_type: Type of rig to create (humanoid, quadruped, bird, fish, simple)
+
+    The auto-rigger will:
+    - Analyze mesh proportions
+    - Create appropriate bone structure
+    - Parent mesh to armature with automatic weights
+    - Set up basic bone constraints
+
+    Returns JSON with armature details and bone names.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "auto_rig", {"mesh_name": mesh_name, "rig_type": rig_type}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error auto-rigging: {str(e)}")
+        return f"Error auto-rigging: {str(e)}"
+
+
+@telemetry_tool("auto_weight_paint")
+@mcp.tool()
+def auto_weight_paint(ctx: Context, mesh_name: str, armature_name: str) -> str:
+    """
+    Automatically paint vertex weights for a mesh-armature pair.
+
+    Parameters:
+    - mesh_name: Name of the mesh object
+    - armature_name: Name of the armature object
+
+    Uses Blender's automatic weight painting with optimizations for common issues.
+
+    Returns JSON with weight painting results.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "auto_weight_paint", {"mesh_name": mesh_name, "armature_name": armature_name}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error weight painting: {str(e)}")
+        return f"Error weight painting: {str(e)}"
+
+
+@telemetry_tool("add_ik_controls")
+@mcp.tool()
+def add_ik_controls(ctx: Context, armature_name: str, limb_type: str = "all") -> str:
+    """
+    Add IK (Inverse Kinematics) controls to an armature.
+
+    Parameters:
+    - armature_name: Name of the armature object
+    - limb_type: Which limbs to add IK to (all, arms, legs, spine)
+
+    This will:
+    - Create IK target bones
+    - Set up IK constraints
+    - Add pole targets for proper bending
+    - Create control shapes for easy selection
+
+    Returns JSON with IK setup details.
+    """
+    try:
+        blender = get_blender_connection()
+        result = blender.send_command(
+            "add_ik_controls", {"armature_name": armature_name, "limb_type": limb_type}
+        )
+        return json.dumps(result, indent=2)
+    except Exception as e:
+        logger.error(f"Error adding IK: {str(e)}")
+        return f"Error adding IK: {str(e)}"
+
+
 # Main execution
 
 
