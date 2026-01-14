@@ -1,7 +1,7 @@
 """Tests for server module."""
 
+
 import pytest
-from unittest.mock import patch, MagicMock
 
 
 class TestBlenderConnection:
@@ -67,8 +67,8 @@ class TestGetBlenderConnection:
 
     def test_connection_failure_raises(self):
         """Test that connection failure raises appropriate exception."""
-        from blenderforge.server import get_blender_connection, _blender_connection
         import blenderforge.server as server_module
+        from blenderforge.server import get_blender_connection
 
         # Reset global connection
         server_module._blender_connection = None
@@ -91,7 +91,6 @@ class TestMCPServerSetup:
 
     def test_tools_registered(self):
         """Test that tools are registered with MCP server."""
-        from blenderforge.server import mcp
 
         # FastMCP stores tools internally
         # We can check by verifying the decorated functions exist

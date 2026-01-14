@@ -8,7 +8,6 @@ import os
 
 import pytest
 
-
 # Skip all tests in this file if BLENDER_INTEGRATION_TEST is not set
 pytestmark = pytest.mark.integration
 
@@ -81,10 +80,6 @@ class TestModuleImports:
             EventType,
             TelemetryCollector,
             TelemetryEvent,
-            get_telemetry,
-            is_telemetry_enabled,
-            record_startup,
-            record_tool_usage,
         )
 
         assert EventType is not None
@@ -102,8 +97,8 @@ class TestModuleImports:
         """Test importing server module."""
         from blenderforge.server import (
             BlenderConnection,
-            mcp,
             main,
+            mcp,
         )
 
         assert BlenderConnection is not None

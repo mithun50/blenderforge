@@ -1,7 +1,6 @@
 """Tests for BlenderConnection class."""
 
 import json
-import socket
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -88,7 +87,7 @@ class TestBlenderConnection:
         from blenderforge.server import BlenderConnection
 
         mock_socket = MagicMock()
-        mock_socket.connect.side_effect = socket.timeout()
+        mock_socket.connect.side_effect = TimeoutError()
         mock_socket_class.return_value = mock_socket
 
         conn = BlenderConnection(host="localhost", port=9876, max_retries=1, retry_delay=0.01)
@@ -187,7 +186,7 @@ class TestBlenderConnection:
 
         mock_socket = MagicMock()
         mock_socket_class.return_value = mock_socket
-        mock_socket.recv.side_effect = socket.timeout()
+        mock_socket.recv.side_effect = TimeoutError()
 
         conn = BlenderConnection(host="localhost", port=9876)
         conn.sock = mock_socket

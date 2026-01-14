@@ -6,7 +6,8 @@ import functools
 import inspect
 import logging
 import time
-from typing import Callable, Any
+from collections.abc import Callable
+from typing import Any
 
 from .telemetry import record_tool_usage
 
@@ -15,6 +16,7 @@ logger = logging.getLogger("blenderforge-telemetry")
 
 def telemetry_tool(tool_name: str):
     """Decorator to add telemetry tracking to MCP tools"""
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs) -> Any:

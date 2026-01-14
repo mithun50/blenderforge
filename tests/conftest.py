@@ -2,6 +2,7 @@
 
 import os
 import sys
+
 import pytest
 
 # Ensure the src directory is in the path
@@ -65,6 +66,4 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "integration: mark test as integration test (requires Blender)"
     )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
+    config.addinivalue_line("markers", "slow: mark test as slow running")

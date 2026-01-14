@@ -12,7 +12,6 @@ To use custom Supabase credentials, create config.local.py in this directory wit
     )
 """
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -45,6 +44,7 @@ def _load_config() -> TelemetryConfig:
     if local_config.exists():
         try:
             import importlib.util
+
             spec = importlib.util.spec_from_file_location("config_local", local_config)
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)

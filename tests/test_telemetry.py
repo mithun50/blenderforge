@@ -1,8 +1,7 @@
 """Tests for telemetry module."""
 
 import os
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 class TestTelemetryDisabling:
@@ -12,8 +11,8 @@ class TestTelemetryDisabling:
         """Test that telemetry can be disabled via environment variable."""
         with patch.dict(os.environ, {"DISABLE_TELEMETRY": "true"}):
             # Need to reload to pick up env var
-            from blenderforge.telemetry import TelemetryCollector
             from blenderforge.config import TelemetryConfig
+            from blenderforge.telemetry import TelemetryCollector
 
             config = TelemetryConfig()
             collector = TelemetryCollector.__new__(TelemetryCollector)
@@ -24,8 +23,8 @@ class TestTelemetryDisabling:
     def test_disable_via_blenderforge_env_var(self):
         """Test BLENDERFORGE_DISABLE_TELEMETRY env var."""
         with patch.dict(os.environ, {"BLENDERFORGE_DISABLE_TELEMETRY": "1"}):
-            from blenderforge.telemetry import TelemetryCollector
             from blenderforge.config import TelemetryConfig
+            from blenderforge.telemetry import TelemetryCollector
 
             config = TelemetryConfig()
             collector = TelemetryCollector.__new__(TelemetryCollector)
@@ -36,8 +35,8 @@ class TestTelemetryDisabling:
     def test_disable_via_mcp_env_var(self):
         """Test MCP_DISABLE_TELEMETRY env var."""
         with patch.dict(os.environ, {"MCP_DISABLE_TELEMETRY": "yes"}):
-            from blenderforge.telemetry import TelemetryCollector
             from blenderforge.config import TelemetryConfig
+            from blenderforge.telemetry import TelemetryCollector
 
             config = TelemetryConfig()
             collector = TelemetryCollector.__new__(TelemetryCollector)
@@ -49,11 +48,15 @@ class TestTelemetryDisabling:
         """Test that telemetry is disabled when no credentials configured."""
         with patch.dict(os.environ, {}, clear=True):
             # Remove any disable env vars
-            for key in ["DISABLE_TELEMETRY", "BLENDERFORGE_DISABLE_TELEMETRY", "MCP_DISABLE_TELEMETRY"]:
+            for key in [
+                "DISABLE_TELEMETRY",
+                "BLENDERFORGE_DISABLE_TELEMETRY",
+                "MCP_DISABLE_TELEMETRY",
+            ]:
                 os.environ.pop(key, None)
 
-            from blenderforge.telemetry import TelemetryCollector
             from blenderforge.config import TelemetryConfig
+            from blenderforge.telemetry import TelemetryCollector
 
             # Empty credentials
             config = TelemetryConfig(supabase_url="", supabase_anon_key="")
@@ -83,8 +86,9 @@ class TestTelemetryEvent:
 
     def test_event_creation(self):
         """Test creating a telemetry event."""
-        from blenderforge.telemetry import TelemetryEvent, EventType
         import time
+
+        from blenderforge.telemetry import EventType, TelemetryEvent
 
         event = TelemetryEvent(
             event_type=EventType.TOOL_EXECUTION,
@@ -106,8 +110,9 @@ class TestTelemetryEvent:
 
     def test_event_optional_fields(self):
         """Test that optional fields have correct defaults."""
-        from blenderforge.telemetry import TelemetryEvent, EventType
         import time
+
+        from blenderforge.telemetry import EventType, TelemetryEvent
 
         event = TelemetryEvent(
             event_type=EventType.STARTUP,

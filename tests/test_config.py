@@ -1,7 +1,5 @@
 """Tests for configuration module."""
 
-import pytest
-from dataclasses import dataclass
 
 
 class TestTelemetryConfig:
@@ -40,8 +38,9 @@ class TestTelemetryConfig:
 
     def test_config_is_dataclass(self):
         """Test that TelemetryConfig is a proper dataclass."""
-        from blenderforge.config import TelemetryConfig
         from dataclasses import is_dataclass
+
+        from blenderforge.config import TelemetryConfig
 
         assert is_dataclass(TelemetryConfig)
 
