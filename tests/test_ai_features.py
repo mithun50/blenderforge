@@ -50,10 +50,16 @@ class TestGenerateMaterialFromText:
 class TestGenerateMaterialFromImage:
     """Tests for generate_material_from_image tool."""
 
+    @patch("blenderforge.server.open", create=True)
+    @patch("blenderforge.server.os.path.exists")
     @patch("blenderforge.server.get_blender_connection")
-    def test_generate_material_from_image_success(self, mock_get_conn):
+    def test_generate_material_from_image_success(self, mock_get_conn, mock_exists, mock_open):
         """Test successful material generation from image."""
         from blenderforge.server import generate_material_from_image
+
+        # Mock file exists and can be read
+        mock_exists.return_value = True
+        mock_open.return_value.__enter__.return_value.read.return_value = b"fake_image_data"
 
         mock_conn = MagicMock()
         mock_conn.send_command.return_value = {
@@ -68,15 +74,29 @@ class TestGenerateMaterialFromImage:
         data = json.loads(result)
         assert data["material_name"] == "ImageMaterial"
 
-    @patch("blenderforge.server.get_blender_connection")
-    def test_generate_material_from_image_error(self, mock_get_conn):
-        """Test material from image with error."""
+    def test_generate_material_from_image_file_not_found(self):
+        """Test material from image when file doesn't exist."""
         from blenderforge.server import generate_material_from_image
 
-        mock_get_conn.side_effect = Exception("Image not found")
+        ctx = MagicMock()
+        result = generate_material_from_image(ctx, "/nonexistent/path.png")
+
+        data = json.loads(result)
+        assert "error" in data
+
+    @patch("blenderforge.server.open", create=True)
+    @patch("blenderforge.server.os.path.exists")
+    @patch("blenderforge.server.get_blender_connection")
+    def test_generate_material_from_image_connection_error(self, mock_get_conn, mock_exists, mock_open):
+        """Test material from image with connection error."""
+        from blenderforge.server import generate_material_from_image
+
+        mock_exists.return_value = True
+        mock_open.return_value.__enter__.return_value.read.return_value = b"fake_image_data"
+        mock_get_conn.side_effect = Exception("Connection failed")
 
         ctx = MagicMock()
-        result = generate_material_from_image(ctx, "/invalid/path.png")
+        result = generate_material_from_image(ctx, "/path/to/image.png")
 
         data = json.loads(result)
         assert "error" in data
