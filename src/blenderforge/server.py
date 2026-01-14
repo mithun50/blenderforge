@@ -134,7 +134,7 @@ class BlenderConnection:
                 # If we can't parse it, it's incomplete
                 raise Exception("Incomplete JSON response received")
         else:
-            raise Exception("No data received")
+            raise Exception("Timeout: No data received")
 
     def send_command(self, command_type: str, params: Dict[str, Any] = None) -> Dict[str, Any]:
         """Send a command to Blender and return the response"""
