@@ -414,6 +414,43 @@ a.md-logo,
   scrollbar-width: thin;
 }
 
+/* Mobile Navigation Drawer */
+.md-nav--primary,
+.md-nav--primary .md-nav__title,
+.md-nav--primary .md-nav__title[for="__drawer"] {
+  background: var(--bf-black) !important;
+  color: var(--bf-white) !important;
+}
+
+.md-nav--primary .md-nav__title .md-nav__icon,
+.md-nav--primary .md-nav__title .md-logo {
+  display: none !important;
+}
+
+/* Mobile drawer header */
+.md-nav__title[for="__drawer"] {
+  background: var(--bf-black) !important;
+  color: var(--bf-white) !important;
+}
+
+.md-nav__title[for="__drawer"] .md-nav__button {
+  color: var(--bf-white) !important;
+}
+
+/* Mobile nav list */
+.md-nav--primary > .md-nav__list {
+  background: var(--bf-white);
+}
+
+[data-md-color-scheme="slate"] .md-nav--primary > .md-nav__list {
+  background: var(--bf-dark);
+}
+
+[data-md-color-scheme="slate"] .md-nav--primary,
+[data-md-color-scheme="slate"] .md-nav--primary .md-nav__title {
+  background: var(--bf-dark) !important;
+}
+
 .md-nav__title {
   font-weight: 700;
   font-size: 0.75rem;
