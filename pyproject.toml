@@ -1,12 +1,15 @@
 [project]
 name = "blenderforge"
-version = "1.0.0"
+version = "1.0.5"
 description = "AI-powered Blender integration for 3D modeling and scene creation"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "BlenderForge Team"}
+    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
+]
+maintainers = [
+    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
 ]
 keywords = ["blender", "mcp", "ai", "3d", "modeling", "claude", "llm"]
 classifiers = [
@@ -39,10 +42,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/yourusername/blenderforge"
-Documentation = "https://github.com/yourusername/blenderforge#readme"
-Repository = "https://github.com/yourusername/blenderforge.git"
-Issues = "https://github.com/yourusername/blenderforge/issues"
+Homepage = "https://github.com/mithun50/blenderforge"
+Documentation = "https://github.com/mithun50/blenderforge#readme"
+Repository = "https://github.com/mithun50/blenderforge.git"
+Issues = "https://github.com/mithun50/blenderforge/issues"
 
 [project.scripts]
 blenderforge = "blenderforge.server:main"

@@ -144,7 +144,7 @@ class TestVersionConsistency:
         """Test that __init__ version matches pyproject.toml."""
         from blenderforge import __version__
 
-        assert __version__ == "1.0.0"
+        assert __version__ == "1.0.5"
 
     def test_version_format(self):
         """Test version follows semver format."""

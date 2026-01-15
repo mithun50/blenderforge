@@ -95,7 +95,7 @@ class TestTelemetryEvent:
             customer_uuid="test-uuid",
             session_id="test-session",
             timestamp=time.time(),
-            version="1.0.0",
+            version="1.0.5",
             platform="linux",
             tool_name="get_scene_info",
             success=True,
@@ -119,7 +119,7 @@ class TestTelemetryEvent:
             customer_uuid="test-uuid",
             session_id="test-session",
             timestamp=time.time(),
-            version="1.0.0",
+            version="1.0.5",
             platform="darwin",
         )
 

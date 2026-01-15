@@ -119,7 +119,51 @@ class BlenderForgeServer:
             return {'success': True}
 ```
 
-### 3. Communication Protocol
+### 3. AI-Powered Features Module
+
+Built-in intelligent automation tools for enhanced 3D workflow.
+
+**Location**: `src/blenderforge/server.py` (lines 1243-1586)
+
+**Features**:
+- **AI Material Generator**: PBR materials from text/images
+- **Natural Language Modeling**: Create/modify objects with plain English
+- **AI Scene Analyzer**: Professional scene critique with scores
+- **Smart Auto-Rig**: Automatic character rigging with bone hierarchies
+- **Auto-Lighting**: Professional lighting presets (studio, cinematic, etc.)
+
+**Key Functions**:
+```python
+# AI Material Generator
+@mcp.tool()
+def generate_material_from_text(ctx, description: str, material_name: str = "AI_Material"):
+    """Generate PBR material from natural language description."""
+    pass
+
+# Natural Language Modeling
+@mcp.tool()
+def create_from_description(ctx, description: str):
+    """Create objects from plain English descriptions."""
+    pass
+
+# Scene Analysis
+@mcp.tool()
+def analyze_scene_composition(ctx):
+    """Analyze scene and provide professional critique with scores."""
+    pass
+
+# Auto-Rigging
+@mcp.tool()
+def auto_rig_character(ctx, mesh_name: str, rig_type: str = "humanoid"):
+    """Automatically create armature for mesh."""
+    pass
+```
+
+See [AI Features Documentation](ai-features.md) for complete details.
+
+---
+
+### 4. Communication Protocol
 
 **MCP Layer (AI ↔ Server)**:
 - Transport: stdio (standard input/output)
@@ -195,7 +239,7 @@ blenderforge/
 ├── src/
 │   └── blenderforge/
 │       ├── __init__.py      # Package initialization
-│       ├── server.py        # Main MCP server
+│       ├── server.py        # Main MCP server (30+ tools including AI features)
 │       ├── config.py        # Configuration management
 │       ├── telemetry.py     # Usage telemetry
 │       └── telemetry_decorator.py  # Telemetry decorator
@@ -204,7 +248,10 @@ blenderforge/
 │   ├── conftest.py         # Test configuration
 │   ├── test_config.py      # Config tests
 │   ├── test_server.py      # Server tests
-│   └── test_telemetry.py   # Telemetry tests
+│   ├── test_tools.py       # Tool function tests
+│   ├── test_ai_features.py # AI-powered features tests (450+ lines)
+│   ├── test_telemetry.py   # Telemetry tests
+│   └── test_integration.py # Integration tests
 ├── docs/                    # Documentation
 ├── .github/
 │   └── workflows/

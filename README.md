@@ -35,9 +35,11 @@ pip install blenderforge
 
 ### 2. Install the Blender Addon
 
-1. Download `addon.py` from this repository
+1. **[⬇️ Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As)
 2. In Blender: `Edit` → `Preferences` → `Add-ons` → `Install...`
-3. Enable the "BlenderForge" addon
+3. Select `addon.py` and click `Install Add-on`
+4. Enable the "BlenderForge" addon (check the checkbox)
+5. Click `Save Preferences` to keep it enabled
 
 ### 3. Configure Your AI Assistant
 
@@ -90,6 +92,16 @@ BlenderForge works with **any MCP-compatible client** (481+ and growing).
 | **Hyper3D Rodin** | AI-generated 3D from text/images |
 | **Hunyuan3D** | Tencent's AI 3D generation |
 
+### AI-Powered Features
+
+| Feature | Description |
+|---------|-------------|
+| **AI Material Generator** | Create PBR materials from text or images |
+| **Natural Language Modeling** | Create objects with plain English ("a red cube 2m tall") |
+| **AI Scene Analyzer** | Professional critique with scores and suggestions |
+| **Smart Auto-Rig** | Automatically rig characters with bone hierarchies |
+| **Auto-Lighting** | Studio, cinematic, dramatic lighting presets |
+
 ---
 
 ## Documentation
@@ -99,7 +111,9 @@ BlenderForge works with **any MCP-compatible client** (481+ and growing).
 | [Getting Started](docs/getting-started.md) | Installation and setup |
 | [AI Clients](docs/ai-clients.md) | Configuration for each AI platform |
 | [Tools Reference](docs/tools-reference.md) | Complete tool documentation |
+| [AI Features](docs/ai-features.md) | AI material generator, NLP modeling, scene analysis |
 | [Asset Integrations](docs/asset-integrations.md) | PolyHaven, Sketchfab, AI generation |
+| [Blender API Reference](docs/blender-api-reference.md) | Python API quick reference |
 | [Architecture](docs/architecture.md) | How BlenderForge works |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
 | [Development](docs/development.md) | Contributing guide |
@@ -122,7 +136,7 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Development setup
-git clone https://github.com/yourusername/blenderforge.git
+git clone https://github.com/mithun50/blenderforge.git
 cd blenderforge
 pip install -e ".[dev]"
 pytest

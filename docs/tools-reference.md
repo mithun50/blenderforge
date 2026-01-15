@@ -509,6 +509,194 @@ Import completed Hunyuan model.
 
 ---
 
+## AI-Powered Tools
+
+Intelligent automation tools for enhanced 3D workflow. See [AI Features](ai-features.md) for detailed documentation.
+
+### generate_material_from_text
+
+Generate a PBR material from a text description.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `description` | string | Yes | Natural language description (e.g., "rusty metal", "glossy wood") |
+| `material_name` | string | No | Name for the material (default: "AI_Material") |
+
+**Returns**:
+```json
+{
+  "material_name": "RustyMetal",
+  "properties_applied": ["metallic", "roughness", "base_color"],
+  "metallic": 0.9,
+  "roughness": 0.8
+}
+```
+
+**Example Usage**:
+```
+"Create a rusty metal material"
+"Generate a polished wooden texture"
+```
+
+---
+
+### generate_material_from_image
+
+Generate a PBR material from a reference image.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `image_path` | string | Yes | Path to the reference image |
+| `material_name` | string | No | Name for the material |
+
+---
+
+### list_material_presets
+
+List available AI material presets.
+
+**Parameters**: None
+
+**Returns**:
+```json
+{
+  "presets": ["metal", "wood", "stone", "fabric", "glass", "plastic", "organic"]
+}
+```
+
+---
+
+### create_from_description
+
+Create 3D objects from natural language descriptions.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `description` | string | Yes | What to create (e.g., "a red cube 2 meters tall") |
+
+**Returns**:
+```json
+{
+  "created_objects": ["Cube"],
+  "count": 1,
+  "properties": {"color": [1.0, 0.0, 0.0, 1.0]}
+}
+```
+
+**Example Usage**:
+```
+"Create a blue sphere at position 5, 0, 0"
+"Make a wooden table"
+"Add 3 green cylinders"
+```
+
+---
+
+### modify_from_description
+
+Modify existing objects using natural language.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Object to modify |
+| `modification` | string | Yes | What to change (e.g., "make it red", "scale to 2x") |
+
+---
+
+### analyze_scene_composition
+
+Analyze scene and provide professional critique with scores.
+
+**Parameters**: None
+
+**Returns**:
+```json
+{
+  "lighting": {"score": 75, "issues": [...], "suggestions": [...]},
+  "composition": {"score": 80, "issues": [...], "suggestions": [...]},
+  "materials": {"score": 60, "issues": [...], "suggestions": [...]},
+  "overall_score": 72
+}
+```
+
+---
+
+### get_improvement_suggestions
+
+Get specific improvement recommendations for the current scene.
+
+**Parameters**: None
+
+---
+
+### auto_optimize_lighting
+
+Automatically set up professional lighting.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `style` | string | No | Lighting style: `studio`, `outdoor`, `dramatic`, `soft`, `product`, `cinematic` |
+
+**Returns**:
+```json
+{
+  "style": "studio",
+  "lights_created": ["Key_Light", "Fill_Light", "Back_Light"]
+}
+```
+
+---
+
+### auto_rig_character
+
+Automatically create an armature for a mesh.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `mesh_name` | string | Yes | Mesh object to rig |
+| `rig_type` | string | No | `humanoid`, `quadruped`, or `simple` |
+
+**Returns**:
+```json
+{
+  "armature_name": "Character_Armature",
+  "bones_created": 15,
+  "mesh_parented": true
+}
+```
+
+---
+
+### auto_weight_paint
+
+Automatically paint vertex weights for mesh-armature binding.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `mesh_name` | string | Yes | Mesh object name |
+| `armature_name` | string | Yes | Armature object name |
+
+---
+
+### add_ik_controls
+
+Add Inverse Kinematics constraints for animation.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `armature_name` | string | Yes | Armature to add IK to |
+| `limb` | string | No | `arm_l`, `arm_r`, `leg_l`, `leg_r`, or `all` |
+
+---
+
 ## Tool Availability
 
 Not all tools are available at all times. Availability depends on:
@@ -516,6 +704,7 @@ Not all tools are available at all times. Availability depends on:
 | Tool Category | Requirement |
 |---------------|-------------|
 | Core Tools | Always available |
+| AI-Powered Tools | Always available |
 | PolyHaven | Enable in BlenderForge panel |
 | Sketchfab | Enable + API key |
 | Hyper3D Rodin | Enable + API key |

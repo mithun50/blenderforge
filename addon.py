@@ -1,4 +1,6 @@
 # BlenderForge - AI-powered Blender Integration
+# Copyright (c) 2025 Mithun Gowda B <mithungowda.b7411@gmail.com>
+# Licensed under the MIT License
 
 import base64
 import hashlib
@@ -26,15 +28,22 @@ from bpy.props import BoolProperty, IntProperty
 
 bl_info = {
     "name": "BlenderForge",
-    "author": "BlenderForge Team",
-    "version": (1, 0, 0),
+    "author": "Mithun Gowda B",
+    "version": (1, 0, 5),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > BlenderForge",
     "description": "AI-powered Blender integration for 3D modeling",
     "category": "Interface",
+    "doc_url": "https://github.com/mithun50/blenderforge",
+    "tracker_url": "https://github.com/mithun50/blenderforge/issues",
 }
 
-RODIN_FREE_TRIAL_KEY = "k9TcfFoEhNd9cCPP2guHAHHHkctZHIRhZDywZ1euGUXwihbYLpOjQhofby80NJez"
+# API keys should be set via environment variables for security
+# Set BLENDERFORGE_RODIN_API_KEY environment variable to use Rodin API
+# Or configure via addon preferences
+def get_rodin_api_key():
+    """Get Rodin API key from environment or return None."""
+    return os.environ.get("BLENDERFORGE_RODIN_API_KEY")
 
 # Add User-Agent as required by Poly Haven API
 REQ_HEADERS = requests.utils.default_headers()
@@ -302,6 +311,26 @@ class BlenderForgeServer:
                 "import_generated_asset_hunyuan": self.import_generated_asset_hunyuan,
             }
             handlers.update(hunyuan_handlers)
+
+        # AI-powered feature handlers (always available)
+        ai_handlers = {
+            # Material Generator
+            "generate_material_text": self.generate_material_text,
+            "generate_material_image": self.generate_material_image,
+            "list_material_presets": self.list_material_presets,
+            # Natural Language Modeling
+            "nlp_create": self.nlp_create,
+            "nlp_modify": self.nlp_modify,
+            # Scene Analyzer
+            "analyze_scene_composition": self.analyze_scene_composition,
+            "get_improvement_suggestions": self.get_improvement_suggestions,
+            "auto_optimize_lighting": self.auto_optimize_lighting,
+            # Auto-Rig
+            "auto_rig": self.auto_rig,
+            "auto_weight_paint": self.auto_weight_paint,
+            "add_ik_controls": self.add_ik_controls,
+        }
+        handlers.update(ai_handlers)
 
         handler = handlers.get(cmd_type)
         if handler:
@@ -1246,9 +1275,11 @@ class BlenderForgeServer:
                                 4. Restart the connection to Claude""",
                 }
             mode = bpy.context.scene.blenderforge_hyper3d_mode
+            api_key = bpy.context.scene.blenderforge_hyper3d_api_key
+            key_type = "configured" if api_key else "not_set"
             message = (
                 f"Hyper3D Rodin integration is enabled and ready to use. Mode: {mode}. "
-                + f"Key type: {'private' if bpy.context.scene.blenderforge_hyper3d_api_key != RODIN_FREE_TRIAL_KEY else 'free_trial'}"
+                + f"Key type: {key_type}"
             )
             return {"enabled": True, "message": message}
         else:
@@ -2414,6 +2445,1139 @@ class BlenderForgeServer:
 
     # endregion
 
+    # ==========================================================================
+    # AI-POWERED FEATURES
+    # ==========================================================================
+
+    # region Material Generator
+
+    # Material keyword mappings for AI material generation
+    MATERIAL_KEYWORDS = {
+        # Surface types
+        "metal": {"metallic": 0.9, "roughness": 0.4},
+        "metallic": {"metallic": 0.95, "roughness": 0.3},
+        "plastic": {"metallic": 0.0, "roughness": 0.4, "specular": 0.5},
+        "glass": {"metallic": 0.0, "roughness": 0.0, "transmission": 1.0, "ior": 1.45},
+        "wood": {"metallic": 0.0, "roughness": 0.6},
+        "stone": {"metallic": 0.0, "roughness": 0.8},
+        "concrete": {"metallic": 0.0, "roughness": 0.9},
+        "fabric": {"metallic": 0.0, "roughness": 0.9, "sheen": 0.5},
+        "leather": {"metallic": 0.0, "roughness": 0.5, "sheen": 0.3},
+        "rubber": {"metallic": 0.0, "roughness": 0.8, "specular": 0.2},
+        "ceramic": {"metallic": 0.0, "roughness": 0.2, "specular": 0.8},
+        "porcelain": {"metallic": 0.0, "roughness": 0.1, "specular": 0.9},
+        # Surface qualities
+        "shiny": {"roughness": 0.1},
+        "glossy": {"roughness": 0.15},
+        "polished": {"roughness": 0.05},
+        "matte": {"roughness": 0.9},
+        "rough": {"roughness": 0.85},
+        "smooth": {"roughness": 0.2},
+        "brushed": {"roughness": 0.4, "anisotropic": 0.5},
+        "satin": {"roughness": 0.3},
+        "frosted": {"roughness": 0.6, "transmission": 0.8},
+        # Conditions
+        "rusty": {"roughness": 0.9, "metallic": 0.7},
+        "weathered": {"roughness": 0.8},
+        "worn": {"roughness": 0.7},
+        "new": {"roughness": 0.3},
+        "aged": {"roughness": 0.75},
+        "scratched": {"roughness": 0.6},
+        "dirty": {"roughness": 0.85},
+        "clean": {"roughness": 0.3},
+        # Special
+        "emissive": {"emission_strength": 5.0},
+        "glowing": {"emission_strength": 10.0},
+        "transparent": {"transmission": 0.9},
+        "translucent": {"transmission": 0.5, "roughness": 0.3},
+    }
+
+    COLOR_KEYWORDS = {
+        "red": (1.0, 0.0, 0.0, 1.0),
+        "green": (0.0, 1.0, 0.0, 1.0),
+        "blue": (0.0, 0.0, 1.0, 1.0),
+        "yellow": (1.0, 1.0, 0.0, 1.0),
+        "orange": (1.0, 0.5, 0.0, 1.0),
+        "purple": (0.5, 0.0, 0.5, 1.0),
+        "pink": (1.0, 0.75, 0.8, 1.0),
+        "cyan": (0.0, 1.0, 1.0, 1.0),
+        "magenta": (1.0, 0.0, 1.0, 1.0),
+        "white": (1.0, 1.0, 1.0, 1.0),
+        "black": (0.0, 0.0, 0.0, 1.0),
+        "gray": (0.5, 0.5, 0.5, 1.0),
+        "grey": (0.5, 0.5, 0.5, 1.0),
+        "brown": (0.4, 0.2, 0.0, 1.0),
+        "beige": (0.96, 0.96, 0.86, 1.0),
+        "tan": (0.82, 0.71, 0.55, 1.0),
+        "gold": (1.0, 0.84, 0.0, 1.0),
+        "silver": (0.75, 0.75, 0.75, 1.0),
+        "bronze": (0.8, 0.5, 0.2, 1.0),
+        "copper": (0.72, 0.45, 0.2, 1.0),
+        "brass": (0.71, 0.65, 0.26, 1.0),
+        "chrome": (0.55, 0.55, 0.55, 1.0),
+        "steel": (0.45, 0.45, 0.5, 1.0),
+        "iron": (0.3, 0.3, 0.35, 1.0),
+        "ivory": (1.0, 1.0, 0.94, 1.0),
+        "cream": (1.0, 0.99, 0.82, 1.0),
+        "navy": (0.0, 0.0, 0.5, 1.0),
+        "teal": (0.0, 0.5, 0.5, 1.0),
+        "olive": (0.5, 0.5, 0.0, 1.0),
+        "maroon": (0.5, 0.0, 0.0, 1.0),
+    }
+
+    MATERIAL_PRESETS = {
+        "metal": [
+            {"name": "Polished Steel", "desc": "Clean, reflective steel surface"},
+            {"name": "Brushed Aluminum", "desc": "Anisotropic brushed metal"},
+            {"name": "Rusty Iron", "desc": "Weathered, oxidized iron"},
+            {"name": "Gold", "desc": "Shiny gold metal"},
+            {"name": "Copper", "desc": "Warm copper with patina"},
+        ],
+        "wood": [
+            {"name": "Oak", "desc": "Light oak wood grain"},
+            {"name": "Walnut", "desc": "Dark walnut wood"},
+            {"name": "Pine", "desc": "Light pine with knots"},
+            {"name": "Mahogany", "desc": "Rich reddish-brown wood"},
+        ],
+        "stone": [
+            {"name": "Marble", "desc": "Polished white marble"},
+            {"name": "Granite", "desc": "Speckled granite surface"},
+            {"name": "Slate", "desc": "Dark layered slate"},
+            {"name": "Sandstone", "desc": "Rough sandstone"},
+        ],
+        "fabric": [
+            {"name": "Cotton", "desc": "Soft cotton fabric"},
+            {"name": "Silk", "desc": "Shiny silk material"},
+            {"name": "Velvet", "desc": "Soft velvet with sheen"},
+            {"name": "Denim", "desc": "Blue denim fabric"},
+        ],
+        "glass": [
+            {"name": "Clear Glass", "desc": "Transparent glass"},
+            {"name": "Frosted Glass", "desc": "Translucent frosted"},
+            {"name": "Tinted Glass", "desc": "Colored glass"},
+        ],
+        "plastic": [
+            {"name": "Glossy Plastic", "desc": "Shiny plastic surface"},
+            {"name": "Matte Plastic", "desc": "Non-reflective plastic"},
+            {"name": "Rubber", "desc": "Soft rubber material"},
+        ],
+        "organic": [
+            {"name": "Skin", "desc": "Human skin with SSS"},
+            {"name": "Leaves", "desc": "Green leaf material"},
+            {"name": "Bark", "desc": "Tree bark texture"},
+        ],
+    }
+
+    def generate_material_text(self, description, name="AI_Material"):
+        """Generate a PBR material from text description"""
+        try:
+            description_lower = description.lower()
+
+            # Create new material
+            mat = bpy.data.materials.new(name=name)
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+
+            # Get principled BSDF node
+            principled = nodes.get("Principled BSDF")
+            if not principled:
+                principled = nodes.new("ShaderNodeBsdfPrincipled")
+
+            # Default values
+            base_color = (0.8, 0.8, 0.8, 1.0)
+            metallic = 0.0
+            roughness = 0.5
+            specular = 0.5
+            transmission = 0.0
+            emission_strength = 0.0
+            ior = 1.45
+
+            # Parse color from description
+            for color_name, color_value in self.COLOR_KEYWORDS.items():
+                if color_name in description_lower:
+                    base_color = color_value
+                    break
+
+            # Parse material properties from keywords
+            for keyword, properties in self.MATERIAL_KEYWORDS.items():
+                if keyword in description_lower:
+                    metallic = properties.get("metallic", metallic)
+                    roughness = properties.get("roughness", roughness)
+                    specular = properties.get("specular", specular)
+                    transmission = properties.get("transmission", transmission)
+                    emission_strength = properties.get("emission_strength", emission_strength)
+                    ior = properties.get("ior", ior)
+
+            # Apply properties to principled BSDF
+            principled.inputs["Base Color"].default_value = base_color
+            principled.inputs["Metallic"].default_value = metallic
+            principled.inputs["Roughness"].default_value = roughness
+            if "IOR" in principled.inputs:
+                principled.inputs["IOR"].default_value = ior
+            if "Transmission" in principled.inputs:
+                principled.inputs["Transmission"].default_value = transmission
+            if transmission > 0:
+                mat.blend_method = 'HASHED'
+            if emission_strength > 0:
+                principled.inputs["Emission Strength"].default_value = emission_strength
+                principled.inputs["Emission Color"].default_value = base_color
+
+            return {
+                "material_name": mat.name,
+                "base_color": list(base_color),
+                "metallic": metallic,
+                "roughness": roughness,
+                "transmission": transmission,
+                "keywords_detected": [k for k in self.MATERIAL_KEYWORDS.keys() if k in description_lower],
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def generate_material_image(self, image_data, name="AI_Material", image_path=None):
+        """Generate material from image analysis"""
+        try:
+            # Decode image and save temporarily
+            temp_path = image_path or tempfile.mktemp(suffix=".png")
+            if not image_path:
+                img_bytes = base64.b64decode(image_data)
+                with open(temp_path, "wb") as f:
+                    f.write(img_bytes)
+
+            # Load image in Blender
+            img = bpy.data.images.load(temp_path)
+
+            # Analyze dominant color (simple average)
+            pixels = list(img.pixels)
+            r = sum(pixels[0::4]) / (len(pixels) // 4)
+            g = sum(pixels[1::4]) / (len(pixels) // 4)
+            b = sum(pixels[2::4]) / (len(pixels) // 4)
+
+            # Estimate roughness from color variance
+            variance = sum((pixels[i] - r) ** 2 for i in range(0, len(pixels), 4)) / (len(pixels) // 4)
+            estimated_roughness = min(0.9, max(0.1, variance * 10))
+
+            # Create material
+            mat = bpy.data.materials.new(name=name)
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            links = mat.node_tree.links
+
+            principled = nodes.get("Principled BSDF")
+            output = nodes.get("Material Output")
+
+            # Add image texture
+            tex_node = nodes.new("ShaderNodeTexImage")
+            tex_node.image = img
+            tex_node.location = (-300, 300)
+
+            # Connect texture to base color
+            links.new(tex_node.outputs["Color"], principled.inputs["Base Color"])
+            principled.inputs["Roughness"].default_value = estimated_roughness
+
+            return {
+                "material_name": mat.name,
+                "dominant_color": [r, g, b],
+                "estimated_roughness": estimated_roughness,
+                "image_loaded": img.name,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def list_material_presets(self, category="all"):
+        """List available material presets"""
+        try:
+            if category == "all":
+                result = {}
+                for cat, presets in self.MATERIAL_PRESETS.items():
+                    result[cat] = presets
+                return {"presets": result}
+            elif category in self.MATERIAL_PRESETS:
+                return {"presets": {category: self.MATERIAL_PRESETS[category]}}
+            else:
+                return {"error": f"Unknown category: {category}", "available": list(self.MATERIAL_PRESETS.keys())}
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Natural Language Modeling
+
+    PRIMITIVES = {
+        "cube": lambda: bpy.ops.mesh.primitive_cube_add(),
+        "sphere": lambda: bpy.ops.mesh.primitive_uv_sphere_add(),
+        "cylinder": lambda: bpy.ops.mesh.primitive_cylinder_add(),
+        "cone": lambda: bpy.ops.mesh.primitive_cone_add(),
+        "plane": lambda: bpy.ops.mesh.primitive_plane_add(),
+        "torus": lambda: bpy.ops.mesh.primitive_torus_add(),
+        "monkey": lambda: bpy.ops.mesh.primitive_monkey_add(),
+        "circle": lambda: bpy.ops.mesh.primitive_circle_add(),
+        "grid": lambda: bpy.ops.mesh.primitive_grid_add(),
+        "icosphere": lambda: bpy.ops.mesh.primitive_ico_sphere_add(),
+    }
+
+    def nlp_create(self, description):
+        """Create objects from natural language description"""
+        try:
+            desc_lower = description.lower()
+            created_objects = []
+
+            # Parse primitive type
+            primitive_type = None
+            for prim_name in self.PRIMITIVES.keys():
+                if prim_name in desc_lower:
+                    primitive_type = prim_name
+                    break
+
+            # Check for complex objects
+            if "table" in desc_lower:
+                obj = self._generate_table(desc_lower)
+                created_objects.append(obj.name)
+            elif "chair" in desc_lower:
+                obj = self._generate_chair(desc_lower)
+                created_objects.append(obj.name)
+            elif "stairs" in desc_lower or "staircase" in desc_lower:
+                obj = self._generate_stairs(desc_lower)
+                created_objects.append(obj.name)
+            elif primitive_type:
+                # Parse quantity
+                quantity = 1
+                import re
+                qty_match = re.search(r"(\d+)\s+" + primitive_type, desc_lower)
+                if qty_match:
+                    quantity = int(qty_match.group(1))
+
+                for i in range(quantity):
+                    self.PRIMITIVES[primitive_type]()
+                    obj = bpy.context.active_object
+
+                    # Apply color if specified
+                    for color_name, color_value in self.COLOR_KEYWORDS.items():
+                        if color_name in desc_lower:
+                            mat = bpy.data.materials.new(name=f"{color_name.capitalize()}_Material")
+                            mat.use_nodes = True
+                            mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color_value
+                            obj.data.materials.append(mat)
+                            break
+
+                    # Parse size
+                    size_match = re.search(r"(\d+\.?\d*)\s*(meter|metre|m|cm|unit)", desc_lower)
+                    if size_match:
+                        size = float(size_match.group(1))
+                        unit = size_match.group(2)
+                        if unit in ["cm"]:
+                            size /= 100
+                        obj.scale = (size, size, size)
+
+                    # Parse position
+                    pos_match = re.search(r"at\s*[(\[]?\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)\s*,\s*(-?\d+\.?\d*)", desc_lower)
+                    if pos_match:
+                        obj.location = (float(pos_match.group(1)), float(pos_match.group(2)), float(pos_match.group(3)))
+                    elif quantity > 1:
+                        # Arrange in a row
+                        obj.location.x = i * 2.5
+
+                    created_objects.append(obj.name)
+            else:
+                return {"error": "Could not understand what to create. Try: 'a red cube' or 'a table'"}
+
+            return {
+                "created_objects": created_objects,
+                "count": len(created_objects),
+                "description_parsed": desc_lower,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def nlp_modify(self, object_name, modification):
+        """Modify an object using natural language"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod_lower = modification.lower()
+            changes = []
+            import re
+
+            # Scale modifications
+            if "twice" in mod_lower or "double" in mod_lower:
+                obj.scale = tuple(s * 2 for s in obj.scale)
+                changes.append("doubled size")
+            elif "half" in mod_lower:
+                obj.scale = tuple(s * 0.5 for s in obj.scale)
+                changes.append("halved size")
+
+            scale_match = re.search(r"scale\s*(\d+\.?\d*)", mod_lower)
+            if scale_match:
+                factor = float(scale_match.group(1))
+                obj.scale = tuple(s * factor for s in obj.scale)
+                changes.append(f"scaled by {factor}")
+
+            # Rotation modifications
+            rot_match = re.search(r"rotate\s*(-?\d+\.?\d*)\s*(?:degrees?)?\s*(?:on\s*)?(x|y|z)?", mod_lower)
+            if rot_match:
+                import math
+                angle = math.radians(float(rot_match.group(1)))
+                axis = rot_match.group(2) or "z"
+                if axis == "x":
+                    obj.rotation_euler.x += angle
+                elif axis == "y":
+                    obj.rotation_euler.y += angle
+                else:
+                    obj.rotation_euler.z += angle
+                changes.append(f"rotated {rot_match.group(1)} degrees on {axis}")
+
+            # Position modifications
+            move_match = re.search(r"move\s*(-?\d+\.?\d*)\s*(meter|m|unit)?\s*(up|down|left|right|forward|backward)?", mod_lower)
+            if move_match:
+                distance = float(move_match.group(1))
+                direction = move_match.group(3) or "up"
+                if direction == "up":
+                    obj.location.z += distance
+                elif direction == "down":
+                    obj.location.z -= distance
+                elif direction in ["left"]:
+                    obj.location.x -= distance
+                elif direction in ["right"]:
+                    obj.location.x += distance
+                elif direction == "forward":
+                    obj.location.y += distance
+                elif direction == "backward":
+                    obj.location.y -= distance
+                changes.append(f"moved {distance} {direction}")
+
+            # Color modifications
+            for color_name, color_value in self.COLOR_KEYWORDS.items():
+                if color_name in mod_lower:
+                    if obj.data.materials:
+                        mat = obj.data.materials[0]
+                    else:
+                        mat = bpy.data.materials.new(name=f"{color_name.capitalize()}_Material")
+                        mat.use_nodes = True
+                        obj.data.materials.append(mat)
+                    mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color_value
+                    changes.append(f"changed color to {color_name}")
+                    break
+
+            # Material properties
+            if "shiny" in mod_lower or "glossy" in mod_lower:
+                if obj.data.materials:
+                    mat = obj.data.materials[0]
+                    mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.1
+                    changes.append("made shiny")
+
+            if "matte" in mod_lower or "rough" in mod_lower:
+                if obj.data.materials:
+                    mat = obj.data.materials[0]
+                    mat.node_tree.nodes["Principled BSDF"].inputs["Roughness"].default_value = 0.9
+                    changes.append("made matte")
+
+            if "metallic" in mod_lower:
+                if obj.data.materials:
+                    mat = obj.data.materials[0]
+                    mat.node_tree.nodes["Principled BSDF"].inputs["Metallic"].default_value = 0.9
+                    changes.append("made metallic")
+
+            if not changes:
+                return {"error": "Could not understand modification. Try: 'rotate 45 degrees', 'make it red', 'move 2 up'"}
+
+            return {
+                "object": object_name,
+                "changes": changes,
+                "new_location": list(obj.location),
+                "new_rotation": list(obj.rotation_euler),
+                "new_scale": list(obj.scale),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _generate_table(self, description):
+        """Generate a simple table"""
+        # Create table top
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0.75))
+        top = bpy.context.active_object
+        top.scale = (1.5, 0.8, 0.05)
+        top.name = "Table_Top"
+
+        # Create legs
+        leg_positions = [(-0.6, -0.3, 0.35), (0.6, -0.3, 0.35), (-0.6, 0.3, 0.35), (0.6, 0.3, 0.35)]
+        legs = []
+        for i, pos in enumerate(leg_positions):
+            bpy.ops.mesh.primitive_cube_add(size=1, location=pos)
+            leg = bpy.context.active_object
+            leg.scale = (0.05, 0.05, 0.35)
+            leg.name = f"Table_Leg_{i+1}"
+            legs.append(leg)
+
+        # Join all parts
+        bpy.ops.object.select_all(action='DESELECT')
+        top.select_set(True)
+        for leg in legs:
+            leg.select_set(True)
+        bpy.context.view_layer.objects.active = top
+        bpy.ops.object.join()
+        top.name = "Table"
+
+        # Apply color if specified
+        for color_name, color_value in self.COLOR_KEYWORDS.items():
+            if color_name in description:
+                mat = bpy.data.materials.new(name=f"Table_{color_name}")
+                mat.use_nodes = True
+                mat.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = color_value
+                top.data.materials.append(mat)
+                break
+
+        return top
+
+    def _generate_chair(self, description):
+        """Generate a simple chair"""
+        # Seat
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, 0, 0.45))
+        seat = bpy.context.active_object
+        seat.scale = (0.5, 0.5, 0.05)
+        seat.name = "Chair_Seat"
+
+        # Back
+        bpy.ops.mesh.primitive_cube_add(size=1, location=(0, -0.22, 0.75))
+        back = bpy.context.active_object
+        back.scale = (0.5, 0.03, 0.3)
+        back.name = "Chair_Back"
+
+        # Legs
+        leg_positions = [(-0.2, -0.2, 0.2), (0.2, -0.2, 0.2), (-0.2, 0.2, 0.2), (0.2, 0.2, 0.2)]
+        legs = []
+        for i, pos in enumerate(leg_positions):
+            bpy.ops.mesh.primitive_cube_add(size=1, location=pos)
+            leg = bpy.context.active_object
+            leg.scale = (0.03, 0.03, 0.2)
+            leg.name = f"Chair_Leg_{i+1}"
+            legs.append(leg)
+
+        # Join
+        bpy.ops.object.select_all(action='DESELECT')
+        seat.select_set(True)
+        back.select_set(True)
+        for leg in legs:
+            leg.select_set(True)
+        bpy.context.view_layer.objects.active = seat
+        bpy.ops.object.join()
+        seat.name = "Chair"
+
+        return seat
+
+    def _generate_stairs(self, description):
+        """Generate simple stairs"""
+        import re
+        steps = 5
+        step_match = re.search(r"(\d+)\s*step", description)
+        if step_match:
+            steps = int(step_match.group(1))
+
+        all_steps = []
+        for i in range(steps):
+            bpy.ops.mesh.primitive_cube_add(size=1, location=(0, i * 0.3, i * 0.2))
+            step = bpy.context.active_object
+            step.scale = (1, 0.3, 0.1)
+            step.name = f"Step_{i+1}"
+            all_steps.append(step)
+
+        # Join
+        bpy.ops.object.select_all(action='DESELECT')
+        for step in all_steps:
+            step.select_set(True)
+        bpy.context.view_layer.objects.active = all_steps[0]
+        bpy.ops.object.join()
+        all_steps[0].name = "Stairs"
+
+        return all_steps[0]
+
+    # endregion
+
+    # region Scene Analyzer
+
+    def analyze_scene_composition(self):
+        """Analyze scene and provide feedback"""
+        try:
+            scene = bpy.context.scene
+            analysis = {
+                "lighting": self._analyze_lighting(),
+                "composition": self._analyze_composition(),
+                "materials": self._analyze_materials(),
+                "overall_score": 0,
+                "recommendations": [],
+            }
+
+            # Calculate overall score
+            scores = [
+                analysis["lighting"].get("score", 50),
+                analysis["composition"].get("score", 50),
+                analysis["materials"].get("score", 50),
+            ]
+            analysis["overall_score"] = sum(scores) // len(scores)
+
+            # Compile recommendations
+            analysis["recommendations"] = (
+                analysis["lighting"].get("suggestions", []) +
+                analysis["composition"].get("suggestions", []) +
+                analysis["materials"].get("suggestions", [])
+            )
+
+            return analysis
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _analyze_lighting(self):
+        """Analyze scene lighting"""
+        lights = [obj for obj in bpy.context.scene.objects if obj.type == 'LIGHT']
+        score = 50
+        suggestions = []
+
+        if len(lights) == 0:
+            score = 20
+            suggestions.append("No lights in scene - add at least one light source")
+        elif len(lights) == 1:
+            score = 50
+            suggestions.append("Single light creates harsh shadows - consider 3-point lighting setup")
+        elif len(lights) >= 3:
+            score = 80
+            suggestions.append("Good lighting setup with multiple lights")
+
+        # Check for environment lighting
+        world = bpy.context.scene.world
+        if world and world.use_nodes:
+            for node in world.node_tree.nodes:
+                if node.type == 'TEX_ENVIRONMENT':
+                    score += 15
+                    break
+
+        # Check light types
+        light_types = [l.data.type for l in lights]
+        if 'SUN' in light_types:
+            score += 5
+        if 'AREA' in light_types:
+            score += 5
+
+        return {
+            "score": min(100, score),
+            "light_count": len(lights),
+            "light_types": light_types,
+            "has_environment": world.use_nodes if world else False,
+            "suggestions": suggestions,
+        }
+
+    def _analyze_composition(self):
+        """Analyze scene composition"""
+        camera = bpy.context.scene.camera
+        objects = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+        score = 50
+        suggestions = []
+
+        if not camera:
+            score = 30
+            suggestions.append("No camera in scene - add a camera for rendering")
+        else:
+            score = 60
+
+        if len(objects) == 0:
+            score = 20
+            suggestions.append("No mesh objects in scene")
+        elif len(objects) == 1:
+            suggestions.append("Single object - consider adding environment or context")
+        elif len(objects) > 20:
+            suggestions.append("Many objects - ensure scene isn't cluttered")
+
+        # Check object distribution
+        if objects:
+            positions = [obj.location for obj in objects]
+            avg_x = sum(p.x for p in positions) / len(positions)
+            avg_y = sum(p.y for p in positions) / len(positions)
+
+            # Check balance
+            if abs(avg_x) < 1 and abs(avg_y) < 1:
+                score += 10
+                suggestions.append("Objects are well-centered")
+            else:
+                suggestions.append("Scene may be unbalanced - consider centering subjects")
+
+        return {
+            "score": min(100, score),
+            "has_camera": camera is not None,
+            "object_count": len(objects),
+            "suggestions": suggestions,
+        }
+
+    def _analyze_materials(self):
+        """Analyze scene materials"""
+        objects = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+        score = 50
+        suggestions = []
+
+        objects_without_materials = []
+        for obj in objects:
+            if not obj.data.materials:
+                objects_without_materials.append(obj.name)
+
+        if objects_without_materials:
+            score -= len(objects_without_materials) * 5
+            if len(objects_without_materials) <= 3:
+                suggestions.append(f"Objects without materials: {', '.join(objects_without_materials)}")
+            else:
+                suggestions.append(f"{len(objects_without_materials)} objects have no materials")
+        else:
+            score = 70
+            suggestions.append("All objects have materials assigned")
+
+        # Check material variety
+        materials = set()
+        for obj in objects:
+            for mat in obj.data.materials:
+                if mat:
+                    materials.add(mat.name)
+
+        if len(materials) > 5:
+            score += 10
+            suggestions.append("Good material variety in scene")
+
+        return {
+            "score": min(100, max(0, score)),
+            "material_count": len(materials),
+            "objects_without_materials": len(objects_without_materials),
+            "suggestions": suggestions,
+        }
+
+    def get_improvement_suggestions(self, focus_area="all"):
+        """Get specific improvement suggestions"""
+        try:
+            suggestions = {"high_priority": [], "medium_priority": [], "low_priority": []}
+
+            if focus_area in ["all", "lighting"]:
+                lighting = self._analyze_lighting()
+                if lighting["score"] < 50:
+                    suggestions["high_priority"].extend(lighting["suggestions"])
+                else:
+                    suggestions["medium_priority"].extend(lighting["suggestions"])
+
+            if focus_area in ["all", "composition"]:
+                composition = self._analyze_composition()
+                if composition["score"] < 50:
+                    suggestions["high_priority"].extend(composition["suggestions"])
+                else:
+                    suggestions["low_priority"].extend(composition["suggestions"])
+
+            if focus_area in ["all", "materials"]:
+                materials = self._analyze_materials()
+                if materials["score"] < 50:
+                    suggestions["medium_priority"].extend(materials["suggestions"])
+                else:
+                    suggestions["low_priority"].extend(materials["suggestions"])
+
+            return suggestions
+        except Exception as e:
+            return {"error": str(e)}
+
+    def auto_optimize_lighting(self, style="studio"):
+        """Automatically set up lighting based on style"""
+        try:
+            changes = []
+
+            # Remove existing lights if requested
+            for obj in list(bpy.context.scene.objects):
+                if obj.type == 'LIGHT':
+                    bpy.data.objects.remove(obj, do_unlink=True)
+                    changes.append(f"Removed existing light: {obj.name}")
+
+            if style == "studio":
+                # Three-point lighting
+                # Key light
+                bpy.ops.object.light_add(type='AREA', location=(4, -4, 5))
+                key = bpy.context.active_object
+                key.name = "Key_Light"
+                key.data.energy = 1000
+                key.rotation_euler = (1.0, 0.0, 0.8)
+                changes.append("Added key light")
+
+                # Fill light
+                bpy.ops.object.light_add(type='AREA', location=(-3, -2, 3))
+                fill = bpy.context.active_object
+                fill.name = "Fill_Light"
+                fill.data.energy = 300
+                fill.rotation_euler = (1.2, 0.0, -0.8)
+                changes.append("Added fill light")
+
+                # Rim light
+                bpy.ops.object.light_add(type='AREA', location=(0, 4, 4))
+                rim = bpy.context.active_object
+                rim.name = "Rim_Light"
+                rim.data.energy = 500
+                rim.rotation_euler = (0.5, 3.14, 0.0)
+                changes.append("Added rim light")
+
+            elif style == "outdoor":
+                # Sun light
+                bpy.ops.object.light_add(type='SUN', location=(0, 0, 10))
+                sun = bpy.context.active_object
+                sun.name = "Sun"
+                sun.data.energy = 5
+                sun.rotation_euler = (0.8, 0.2, 0.5)
+                changes.append("Added sun light")
+
+            elif style == "dramatic":
+                # Single strong light with shadows
+                bpy.ops.object.light_add(type='SPOT', location=(5, -5, 6))
+                spot = bpy.context.active_object
+                spot.name = "Dramatic_Spot"
+                spot.data.energy = 2000
+                spot.data.spot_size = 0.8
+                spot.rotation_euler = (1.0, 0.0, 0.8)
+                changes.append("Added dramatic spot light")
+
+            elif style == "soft":
+                # Large area lights for soft shadows
+                bpy.ops.object.light_add(type='AREA', location=(0, 0, 5))
+                soft = bpy.context.active_object
+                soft.name = "Soft_Light"
+                soft.data.energy = 800
+                soft.data.size = 10
+                changes.append("Added large soft area light")
+
+            elif style == "product":
+                # Clean product photography lighting
+                for i, pos in enumerate([(3, -3, 3), (-3, -3, 3), (0, 3, 2)]):
+                    bpy.ops.object.light_add(type='AREA', location=pos)
+                    light = bpy.context.active_object
+                    light.name = f"Product_Light_{i+1}"
+                    light.data.energy = 500
+                    light.data.size = 2
+                changes.append("Added product photography lighting")
+
+            elif style == "cinematic":
+                # Warm key, cool fill
+                bpy.ops.object.light_add(type='AREA', location=(4, -3, 4))
+                key = bpy.context.active_object
+                key.name = "Cinematic_Key"
+                key.data.energy = 800
+                key.data.color = (1.0, 0.9, 0.8)
+                changes.append("Added warm key light")
+
+                bpy.ops.object.light_add(type='AREA', location=(-3, -2, 3))
+                fill = bpy.context.active_object
+                fill.name = "Cinematic_Fill"
+                fill.data.energy = 200
+                fill.data.color = (0.8, 0.9, 1.0)
+                changes.append("Added cool fill light")
+
+            return {
+                "style_applied": style,
+                "changes": changes,
+                "lights_created": len([o for o in bpy.context.scene.objects if o.type == 'LIGHT']),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Auto-Rig
+
+    def auto_rig(self, mesh_name, rig_type="humanoid"):
+        """Automatically rig a character mesh"""
+        try:
+            mesh_obj = bpy.data.objects.get(mesh_name)
+            if not mesh_obj:
+                return {"error": f"Mesh '{mesh_name}' not found"}
+            if mesh_obj.type != 'MESH':
+                return {"error": f"Object '{mesh_name}' is not a mesh"}
+
+            # Get mesh bounds
+            bounds = self._get_aabb(mesh_obj)
+            min_bound = bounds[0]
+            max_bound = bounds[1]
+            height = max_bound[2] - min_bound[2]
+            width = max_bound[0] - min_bound[0]
+            center_x = (min_bound[0] + max_bound[0]) / 2
+            center_y = (min_bound[1] + max_bound[1]) / 2
+
+            # Create armature
+            bpy.ops.object.armature_add(enter_editmode=True, location=(center_x, center_y, min_bound[2]))
+            armature = bpy.context.active_object
+            armature.name = f"{mesh_name}_Rig"
+
+            arm_data = armature.data
+            arm_data.name = f"{mesh_name}_Armature"
+
+            bones_created = []
+
+            if rig_type == "humanoid":
+                bones_created = self._create_humanoid_bones(arm_data, height, min_bound[2])
+            elif rig_type == "quadruped":
+                bones_created = self._create_quadruped_bones(arm_data, height, width, min_bound[2])
+            elif rig_type == "simple":
+                bones_created = self._create_simple_bones(arm_data, height, min_bound[2])
+            else:
+                bones_created = self._create_simple_bones(arm_data, height, min_bound[2])
+
+            # Exit edit mode
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            # Parent mesh to armature with automatic weights
+            bpy.ops.object.select_all(action='DESELECT')
+            mesh_obj.select_set(True)
+            armature.select_set(True)
+            bpy.context.view_layer.objects.active = armature
+            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+
+            return {
+                "armature_name": armature.name,
+                "bones_created": bones_created,
+                "rig_type": rig_type,
+                "mesh_parented": mesh_name,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def _create_humanoid_bones(self, arm_data, height, base_z):
+        """Create humanoid bone structure"""
+        bones = []
+
+        # Remove default bone
+        if arm_data.edit_bones:
+            for bone in list(arm_data.edit_bones):
+                arm_data.edit_bones.remove(bone)
+
+        # Spine
+        spine_base = arm_data.edit_bones.new("Spine")
+        spine_base.head = (0, 0, base_z + height * 0.4)
+        spine_base.tail = (0, 0, base_z + height * 0.55)
+        bones.append("Spine")
+
+        spine_mid = arm_data.edit_bones.new("Spine.001")
+        spine_mid.head = spine_base.tail
+        spine_mid.tail = (0, 0, base_z + height * 0.7)
+        spine_mid.parent = spine_base
+        bones.append("Spine.001")
+
+        # Neck and Head
+        neck = arm_data.edit_bones.new("Neck")
+        neck.head = spine_mid.tail
+        neck.tail = (0, 0, base_z + height * 0.8)
+        neck.parent = spine_mid
+        bones.append("Neck")
+
+        head = arm_data.edit_bones.new("Head")
+        head.head = neck.tail
+        head.tail = (0, 0, base_z + height * 1.0)
+        head.parent = neck
+        bones.append("Head")
+
+        # Hips
+        hips = arm_data.edit_bones.new("Hips")
+        hips.head = (0, 0, base_z + height * 0.4)
+        hips.tail = (0, 0, base_z + height * 0.35)
+        bones.append("Hips")
+
+        # Legs
+        for side, x_offset in [("L", 0.1 * height), ("R", -0.1 * height)]:
+            thigh = arm_data.edit_bones.new(f"Thigh.{side}")
+            thigh.head = (x_offset, 0, base_z + height * 0.4)
+            thigh.tail = (x_offset, 0, base_z + height * 0.2)
+            thigh.parent = hips
+            bones.append(f"Thigh.{side}")
+
+            shin = arm_data.edit_bones.new(f"Shin.{side}")
+            shin.head = thigh.tail
+            shin.tail = (x_offset, 0, base_z + height * 0.05)
+            shin.parent = thigh
+            bones.append(f"Shin.{side}")
+
+            foot = arm_data.edit_bones.new(f"Foot.{side}")
+            foot.head = shin.tail
+            foot.tail = (x_offset, -0.1 * height, base_z)
+            foot.parent = shin
+            bones.append(f"Foot.{side}")
+
+        # Arms
+        for side, x_offset in [("L", 0.15 * height), ("R", -0.15 * height)]:
+            shoulder = arm_data.edit_bones.new(f"Shoulder.{side}")
+            shoulder.head = (0, 0, base_z + height * 0.7)
+            shoulder.tail = (x_offset, 0, base_z + height * 0.7)
+            shoulder.parent = spine_mid
+            bones.append(f"Shoulder.{side}")
+
+            upper_arm = arm_data.edit_bones.new(f"UpperArm.{side}")
+            upper_arm.head = shoulder.tail
+            upper_arm.tail = (x_offset * 2, 0, base_z + height * 0.55)
+            upper_arm.parent = shoulder
+            bones.append(f"UpperArm.{side}")
+
+            forearm = arm_data.edit_bones.new(f"Forearm.{side}")
+            forearm.head = upper_arm.tail
+            forearm.tail = (x_offset * 2.5, 0, base_z + height * 0.4)
+            forearm.parent = upper_arm
+            bones.append(f"Forearm.{side}")
+
+            hand = arm_data.edit_bones.new(f"Hand.{side}")
+            hand.head = forearm.tail
+            hand.tail = (x_offset * 2.7, 0, base_z + height * 0.35)
+            hand.parent = forearm
+            bones.append(f"Hand.{side}")
+
+        return bones
+
+    def _create_quadruped_bones(self, arm_data, height, width, base_z):
+        """Create quadruped bone structure"""
+        bones = []
+
+        for bone in list(arm_data.edit_bones):
+            arm_data.edit_bones.remove(bone)
+
+        # Spine
+        spine = arm_data.edit_bones.new("Spine")
+        spine.head = (0, -width * 0.3, base_z + height * 0.5)
+        spine.tail = (0, width * 0.3, base_z + height * 0.5)
+        bones.append("Spine")
+
+        # Head
+        head = arm_data.edit_bones.new("Head")
+        head.head = spine.tail
+        head.tail = (0, width * 0.5, base_z + height * 0.6)
+        head.parent = spine
+        bones.append("Head")
+
+        # Tail
+        tail = arm_data.edit_bones.new("Tail")
+        tail.head = spine.head
+        tail.tail = (0, -width * 0.5, base_z + height * 0.4)
+        tail.parent = spine
+        bones.append("Tail")
+
+        # Legs
+        leg_positions = [
+            ("Front.L", (width * 0.2, width * 0.2)),
+            ("Front.R", (-width * 0.2, width * 0.2)),
+            ("Back.L", (width * 0.2, -width * 0.2)),
+            ("Back.R", (-width * 0.2, -width * 0.2)),
+        ]
+
+        for name, (x, y) in leg_positions:
+            upper = arm_data.edit_bones.new(f"UpperLeg.{name}")
+            upper.head = (x, y, base_z + height * 0.5)
+            upper.tail = (x, y, base_z + height * 0.25)
+            upper.parent = spine
+            bones.append(f"UpperLeg.{name}")
+
+            lower = arm_data.edit_bones.new(f"LowerLeg.{name}")
+            lower.head = upper.tail
+            lower.tail = (x, y, base_z)
+            lower.parent = upper
+            bones.append(f"LowerLeg.{name}")
+
+        return bones
+
+    def _create_simple_bones(self, arm_data, height, base_z):
+        """Create simple bone chain"""
+        bones = []
+
+        for bone in list(arm_data.edit_bones):
+            arm_data.edit_bones.remove(bone)
+
+        segments = 5
+        for i in range(segments):
+            bone = arm_data.edit_bones.new(f"Bone.{i:03d}")
+            bone.head = (0, 0, base_z + (height / segments) * i)
+            bone.tail = (0, 0, base_z + (height / segments) * (i + 1))
+            if i > 0:
+                bone.parent = arm_data.edit_bones[f"Bone.{i-1:03d}"]
+            bones.append(f"Bone.{i:03d}")
+
+        return bones
+
+    def auto_weight_paint(self, mesh_name, armature_name):
+        """Automatically paint weights"""
+        try:
+            mesh_obj = bpy.data.objects.get(mesh_name)
+            armature_obj = bpy.data.objects.get(armature_name)
+
+            if not mesh_obj:
+                return {"error": f"Mesh '{mesh_name}' not found"}
+            if not armature_obj:
+                return {"error": f"Armature '{armature_name}' not found"}
+
+            # Clear existing weights
+            mesh_obj.vertex_groups.clear()
+
+            # Parent with automatic weights
+            bpy.ops.object.select_all(action='DESELECT')
+            mesh_obj.select_set(True)
+            armature_obj.select_set(True)
+            bpy.context.view_layer.objects.active = armature_obj
+            bpy.ops.object.parent_set(type='ARMATURE_AUTO')
+
+            return {
+                "mesh": mesh_name,
+                "armature": armature_name,
+                "vertex_groups_created": len(mesh_obj.vertex_groups),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_ik_controls(self, armature_name, limb_type="all"):
+        """Add IK controls to armature"""
+        try:
+            armature_obj = bpy.data.objects.get(armature_name)
+            if not armature_obj:
+                return {"error": f"Armature '{armature_name}' not found"}
+            if armature_obj.type != 'ARMATURE':
+                return {"error": f"Object '{armature_name}' is not an armature"}
+
+            ik_targets = []
+            bpy.context.view_layer.objects.active = armature_obj
+            bpy.ops.object.mode_set(mode='POSE')
+
+            arm_data = armature_obj.data
+
+            # Find end bones and add IK
+            for bone in armature_obj.pose.bones:
+                should_add_ik = False
+
+                if limb_type == "all":
+                    should_add_ik = any(x in bone.name.lower() for x in ["hand", "foot", "paw"])
+                elif limb_type == "arms":
+                    should_add_ik = "hand" in bone.name.lower()
+                elif limb_type == "legs":
+                    should_add_ik = any(x in bone.name.lower() for x in ["foot", "paw"])
+
+                if should_add_ik:
+                    # Add IK constraint
+                    ik = bone.constraints.new('IK')
+                    ik.chain_count = 2
+
+                    # Create IK target
+                    bpy.ops.object.mode_set(mode='EDIT')
+                    target_bone = arm_data.edit_bones.new(f"IK_Target_{bone.name}")
+                    target_bone.head = arm_data.edit_bones[bone.name].tail
+                    target_bone.tail = (
+                        target_bone.head[0],
+                        target_bone.head[1] - 0.1,
+                        target_bone.head[2]
+                    )
+                    bpy.ops.object.mode_set(mode='POSE')
+
+                    ik.target = armature_obj
+                    ik.subtarget = target_bone.name
+                    ik_targets.append(target_bone.name)
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            return {
+                "armature": armature_name,
+                "ik_targets_created": ik_targets,
+                "limb_type": limb_type,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
 
 # Blender Addon Preferences
 class BLENDERFORGE_AddonPreferences(bpy.types.AddonPreferences):
@@ -2501,15 +3665,24 @@ class BLENDERFORGE_PT_Panel(bpy.types.Panel):
             layout.label(text=f"Running on port {scene.blenderforge_port}")
 
 
-# Operator to set Hyper3D API Key
+# Operator to guide user to get Hyper3D API Key
 class BLENDERFORGE_OT_SetFreeTrialHyper3DAPIKey(bpy.types.Operator):
     bl_idname = "blendermcp.set_hyper3d_free_trial_api_key"
-    bl_label = "Set Free Trial API Key"
+    bl_label = "Get API Key"
+    bl_description = "Opens Hyper3D website to get your API key"
 
     def execute(self, context):
-        context.scene.blenderforge_hyper3d_api_key = RODIN_FREE_TRIAL_KEY
-        context.scene.blenderforge_hyper3d_mode = "MAIN_SITE"
-        self.report({"INFO"}, "API Key set successfully!")
+        import webbrowser
+        # Check for environment variable first
+        env_key = get_rodin_api_key()
+        if env_key:
+            context.scene.blenderforge_hyper3d_api_key = env_key
+            context.scene.blenderforge_hyper3d_mode = "MAIN_SITE"
+            self.report({"INFO"}, "API Key loaded from environment!")
+            return {"FINISHED"}
+        # Otherwise, guide user to get their own key
+        webbrowser.open("https://hyper3d.ai/")
+        self.report({"INFO"}, "Please sign up at hyper3d.ai to get your free API key")
         return {"FINISHED"}
 
 

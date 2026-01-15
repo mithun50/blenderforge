@@ -1,26 +1,77 @@
-# BlenderForge Documentation
+---
+title: Home
+description: Control Blender with AI through natural language conversation
+---
 
-> Control Blender with AI through natural language conversation.
+# BlenderForge
 
-Welcome to the BlenderForge documentation. BlenderForge connects AI assistants to Blender using the **Model Context Protocol (MCP)**, letting you create 3D scenes using natural language.
+<p class="hero-gradient" style="font-size: 1.4em; font-weight: 500; margin-bottom: 2em;">
+Control Blender with AI through natural language conversation
+</p>
+
+<div class="grid" markdown>
+
+<div class="card" markdown>
+### :material-robot: AI-Powered
+Connect any MCP-compatible AI assistant to Blender. Works with Claude, ChatGPT, Copilot, and 481+ more.
+</div>
+
+<div class="card" markdown>
+### :material-lightning-bolt: Natural Language
+Just describe what you want. No menus, no scripts - pure conversation.
+</div>
+
+<div class="card" markdown>
+### :material-palette: Rich Features
+Materials, lighting, assets, 3D generation - everything through simple commands.
+</div>
+
+<div class="card" markdown>
+### :material-open-source-initiative: Open Source
+MIT licensed, community-driven, and completely free to use.
+</div>
+
+</div>
 
 ---
 
-## Quick Navigation
+## :rocket: Quick Start
 
-| Document | Description |
-|----------|-------------|
-| [Getting Started](getting-started.md) | Installation, setup, and first steps |
-| [AI Clients](ai-clients.md) | Configure Claude, ChatGPT, VS Code, Cursor, and more |
-| [Tools Reference](tools-reference.md) | Complete list of available tools |
-| [Asset Integrations](asset-integrations.md) | PolyHaven, Sketchfab, Hyper3D Rodin, Hunyuan3D |
-| [Architecture](architecture.md) | How BlenderForge works under the hood |
-| [Troubleshooting](troubleshooting.md) | Common issues and solutions |
-| [Development](development.md) | Contributing and development setup |
+=== "pip"
+
+    ```bash
+    pip install blenderforge
+    ```
+
+=== "uv"
+
+    ```bash
+    uv pip install blenderforge
+    ```
+
+=== "pipx"
+
+    ```bash
+    pipx install blenderforge
+    ```
+
+Then configure your AI assistant:
+
+```json title="claude_desktop_config.json"
+{
+  "mcpServers": {
+    "blenderforge": {
+      "command": "blenderforge"
+    }
+  }
+}
+```
+
+[:octicons-arrow-right-24: Full Installation Guide](getting-started.md)
 
 ---
 
-## What Can You Do?
+## :sparkles: What Can You Do?
 
 Instead of learning complex Blender menus and Python scripts, just describe what you want:
 
@@ -38,73 +89,70 @@ AI: I'll create that for you...
 
 | Capability | Description |
 |------------|-------------|
-| **Query Scene** | Get information about objects, materials, settings |
-| **Create Objects** | Add and modify 3D objects |
-| **Run Python** | Execute any Blender Python code |
-| **Take Screenshots** | Capture viewport images |
-| **Download Assets** | Get free textures, HDRIs, and 3D models |
-| **AI Generation** | Generate 3D models from text or images |
+| :material-cube-scan: **Query Scene** | Get information about objects, materials, settings |
+| :material-cube-outline: **Create Objects** | Add and modify 3D objects |
+| :material-code-tags: **Run Python** | Execute any Blender Python code |
+| :material-camera: **Take Screenshots** | Capture viewport images |
+| :material-download: **Download Assets** | Get free textures, HDRIs, and 3D models |
+| :material-creation: **AI Generation** | Generate 3D models from text or images |
+
+### AI-Powered Features
+
+| Feature | Description |
+|---------|-------------|
+| :material-palette-swatch: **AI Material Generator** | Create PBR materials from text descriptions or images |
+| :material-chat-processing: **Natural Language Modeling** | Create objects with plain English |
+| :material-chart-line: **AI Scene Analyzer** | Get professional critique with scores and suggestions |
+| :material-human: **Smart Auto-Rig** | Automatically rig characters with proper bone hierarchies |
+| :material-lightbulb-on: **Auto-Lighting** | Set up studio, cinematic, or dramatic lighting presets |
 
 ---
 
-## How It Works
+## :globe_with_meridians: Supported AI Assistants
 
-BlenderForge uses the **Model Context Protocol (MCP)** - an open standard that lets AI assistants use external tools.
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                        YOUR AI ASSISTANT                            │
-│         (Claude, ChatGPT, Copilot, Cursor, Antigravity...)         │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  │ MCP Protocol (standard communication)
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      BLENDERFORGE SERVER                            │
-│                                                                     │
-│  Translates AI requests into Blender commands                       │
-│  • "Get scene info" → Blender scene data                           │
-│  • "Add a cube" → bpy.ops.mesh.primitive_cube_add()                │
-│  • "Download wood texture" → PolyHaven API → Material setup        │
-└─────────────────────────────────┬───────────────────────────────────┘
-                                  │
-                                  │ Socket Connection (localhost:9876)
-                                  │
-                                  ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                      BLENDER + ADDON                                │
-│                                                                     │
-│  Executes commands in Blender's 3D environment                      │
-│  • Creates/modifies objects                                         │
-│  • Applies materials and textures                                   │
-│  • Manages scene, lighting, camera                                  │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Supported AI Assistants
-
-BlenderForge works with **any AI that supports MCP**. As of 2025, that includes:
+BlenderForge works with **any AI that supports MCP**:
 
 | AI Assistant | Developer | Status |
 |--------------|-----------|--------|
-| Claude Desktop | Anthropic | ✅ Full support |
-| Claude Code | Anthropic | ✅ Full support |
-| ChatGPT Desktop | OpenAI | ✅ Full support |
-| Google Antigravity | Google | ✅ Full support |
-| VS Code + Copilot | Microsoft | ✅ Full support |
-| Cursor IDE | Cursor | ✅ Full support |
-| Windsurf | Codeium | ✅ Full support |
-| Zed Editor | Zed | ✅ Full support |
-| Continue.dev | Continue | ✅ Full support |
+| Claude Desktop | Anthropic | :white_check_mark: Full support |
+| Claude Code | Anthropic | :white_check_mark: Full support |
+| ChatGPT Desktop | OpenAI | :white_check_mark: Full support |
+| Google Antigravity | Google | :white_check_mark: Full support |
+| VS Code + Copilot | Microsoft | :white_check_mark: Full support |
+| Cursor IDE | Cursor | :white_check_mark: Full support |
+| Windsurf | Codeium | :white_check_mark: Full support |
+| Zed Editor | Zed | :white_check_mark: Full support |
+| Continue.dev | Continue | :white_check_mark: Full support |
 
-MCP is an **open standard** (like USB for AI tools). Any AI that "speaks MCP" can use BlenderForge - no special integration needed. The ecosystem has **481+ compatible clients** and growing.
+!!! tip "Open Standard"
+    MCP is an **open standard** (like USB for AI tools). Any AI that "speaks MCP" can use BlenderForge - no special integration needed.
 
 ---
 
-## System Requirements
+## :building_construction: How It Works
+
+```mermaid
+flowchart LR
+    A[AI Assistant] -->|MCP Protocol| B[BlenderForge Server]
+    B -->|Socket| C[Blender Addon]
+    C -->|Python API| D[Blender]
+
+    style A fill:#7c3aed,stroke:#5b21b6,color:#fff
+    style B fill:#a855f7,stroke:#7c3aed,color:#fff
+    style C fill:#f59e0b,stroke:#d97706,color:#fff
+    style D fill:#fb923c,stroke:#f59e0b,color:#fff
+```
+
+BlenderForge uses the **Model Context Protocol (MCP)** - an open standard that lets AI assistants use external tools.
+
+1. **AI Assistant** sends natural language requests via MCP
+2. **BlenderForge Server** translates requests into Blender commands
+3. **Blender Addon** executes commands via Python API
+4. **Results** flow back to your AI assistant
+
+---
+
+## :desktop_computer: System Requirements
 
 | Component | Requirement |
 |-----------|-------------|
@@ -113,25 +161,26 @@ MCP is an **open standard** (like USB for AI tools). Any AI that "speaks MCP" ca
 | **OS** | Windows, macOS, or Linux |
 | **Network** | Localhost access (no internet required for core features) |
 
-### Platform Support
+---
 
-| Platform | Architecture | Status |
-|----------|--------------|--------|
-| Windows 10/11 | x64, ARM64 | ✅ Full support |
-| macOS 12+ | Intel, Apple Silicon | ✅ Full support |
-| Linux | x64, ARM64 | ✅ Full support |
+## :link: Quick Links
+
+<div class="grid" markdown>
+
+[:material-github: **GitHub Repository**](https://github.com/mithun50/blenderforge){ .md-button }
+
+[:material-book-open-variant: **Documentation**](getting-started.md){ .md-button }
+
+[:fontawesome-brands-python: **PyPI Package**](https://pypi.org/project/blenderforge/){ .md-button }
+
+[:material-help-circle: **Get Help**](troubleshooting.md){ .md-button }
+
+</div>
 
 ---
 
-## Quick Links
+## :balance_scale: License
 
-- [GitHub Repository](https://github.com/yourusername/blenderforge)
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Blender Python API](https://docs.blender.org/api/current/)
-- [PolyHaven](https://polyhaven.com/)
+MIT License - see [LICENSE](https://github.com/mithun50/blenderforge/blob/main/LICENSE) for details.
 
----
-
-## License
-
-MIT License - see [LICENSE](../LICENSE) for details.
+Made with :heart: by [Mithun Gowda B](https://github.com/mithun50)
