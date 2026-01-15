@@ -12,7 +12,6 @@ copyright: Copyright &copy; 2025 Mithun Gowda B
 theme:
   name: material
   language: en
-  logo: assets/logo.svg
   favicon: assets/favicon.svg
 
   palette:

@@ -247,24 +247,6 @@ body {
   position: relative;
 }
 
-/* Logo styling */
-.md-header__button.md-logo {
-  padding: 0.4rem;
-}
-
-.md-header__button.md-logo img,
-.md-header__button.md-logo svg {
-  height: 1.8rem;
-  width: auto;
-  filter: brightness(0) invert(1);
-  transition: transform var(--bf-transition-fast);
-}
-
-.md-header__button.md-logo:hover img,
-.md-header__button.md-logo:hover svg {
-  transform: scale(1.1);
-}
-
 /* Navigation Tabs - Modern Style */
 .md-tabs {
   background: var(--bf-black);
