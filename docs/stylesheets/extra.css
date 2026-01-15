@@ -245,7 +245,7 @@ a.md-logo,
   margin: 0 !important;
 }
 
-/* Header title - ensure visibility */
+/* Header title - ensure visibility and fix overlapping */
 .md-header__title,
 .md-header__title *,
 .md-header__topic,
@@ -258,19 +258,72 @@ a.md-logo,
 }
 
 .md-header__title {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   font-weight: 800;
   font-size: 1.1rem;
   letter-spacing: -0.02em;
   text-transform: uppercase;
+  overflow: hidden;
+  max-width: 300px;
+  flex-shrink: 1;
+  min-width: 0;
 }
 
+/* Fix header title ellipsis container */
+.md-header__title > .md-header__ellipsis {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* Header topic transitions - prevent overlap */
 .md-header__topic {
+  position: relative;
+  display: block;
   font-weight: 600;
   font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: transform 0.4s cubic-bezier(0.1, 0.7, 0.1, 1),
+              opacity 0.15s;
+  will-change: transform, opacity;
 }
 
+.md-header__topic .md-ellipsis {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Second topic (page title) - shown when scrolled */
 .md-header__topic + .md-header__topic {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transform: translateY(100%);
+  pointer-events: none;
+}
+
+/* When header is in "shadow" state (scrolled) */
+.md-header[data-md-state="shadow"] .md-header__topic:first-child {
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+}
+
+.md-header[data-md-state="shadow"] .md-header__topic + .md-header__topic {
   opacity: 0.7;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 /* Navigation Tabs - Custom Style */
