@@ -1,6 +1,6 @@
 [project]
 name = "blenderforge"
-version = "1.0.0"
+version = "1.0.5"
 description = "AI-powered Blender integration for 3D modeling and scene creation"
 readme = "README.md"
 license = {text = "MIT"}

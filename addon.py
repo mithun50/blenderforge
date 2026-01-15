@@ -29,7 +29,7 @@ from bpy.props import BoolProperty, IntProperty
 bl_info = {
     "name": "BlenderForge",
     "author": "Mithun Gowda B",
-    "version": (1, 0, 0),
+    "version": (1, 0, 5),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > BlenderForge",
     "description": "AI-powered Blender integration for 3D modeling",
