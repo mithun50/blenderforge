@@ -44,7 +44,6 @@ theme:
     - navigation.path
     - navigation.indexes
     - navigation.top
-    - navigation.footer
     - toc.follow
     - toc.integrate
     - search.suggest
