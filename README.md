@@ -1,11 +1,28 @@
-# BlenderForge
+<div align="center">
 
-> Control Blender with AI through natural language conversation.
+# 🔥 BlenderForge
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![Blender 3.0+](https://img.shields.io/badge/blender-3.0+-orange.svg)](https://www.blender.org/)
-[![MCP Compatible](https://img.shields.io/badge/MCP-compatible-green.svg)](https://modelcontextprotocol.io/)
+### Control Blender with AI through natural language conversation
+
+[![PyPI Version](https://img.shields.io/pypi/v/blenderforge?color=blue&label=PyPI)](https://pypi.org/project/blenderforge/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/blenderforge?color=green&label=Downloads)](https://pypi.org/project/blenderforge/)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![Blender 3.0+](https://img.shields.io/badge/Blender-3.0+-E87D0D?logo=blender&logoColor=white)](https://www.blender.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+[![GitHub Stars](https://img.shields.io/github/stars/mithun50/blenderforge?style=social)](https://github.com/mithun50/blenderforge/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/mithun50/blenderforge?style=social)](https://github.com/mithun50/blenderforge/network/members)
+[![GitHub Issues](https://img.shields.io/github/issues/mithun50/blenderforge)](https://github.com/mithun50/blenderforge/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/mithun50/blenderforge)](https://github.com/mithun50/blenderforge/pulls)
+
+[![CI](https://img.shields.io/github/actions/workflow/status/mithun50/blenderforge/ci.yml?branch=main&label=CI&logo=github)](https://github.com/mithun50/blenderforge/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/github/actions/workflow/status/mithun50/blenderforge/docs.yml?branch=main&label=Docs&logo=github)](https://mithun50.github.io/blenderforge/)
+[![Code Style: Ruff](https://img.shields.io/badge/Code%20Style-Ruff-261230?logo=ruff&logoColor=D7FF64)](https://github.com/astral-sh/ruff)
+[![MCP Compatible](https://img.shields.io/badge/MCP-Compatible-00D4AA?logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xMiAyTDIgN2wxMCA1IDEwLTV6Ii8+PC9zdmc+)](https://modelcontextprotocol.io/)
+
+[![Documentation](https://img.shields.io/badge/📚_Documentation-mithun50.github.io/blenderforge-7c3aed?style=for-the-badge)](https://mithun50.github.io/blenderforge/)
+
+</div>
 
 ---
 
@@ -152,7 +169,19 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- [Model Context Protocol](https://modelcontextprotocol.io/)
-- [Blender Python API](https://docs.blender.org/api/current/)
-- [PolyHaven](https://polyhaven.com/)
-- [Sketchfab](https://sketchfab.com/)
+- 📚 [**Documentation**](https://mithun50.github.io/blenderforge/) - Full docs with guides and API reference
+- 📦 [**PyPI Package**](https://pypi.org/project/blenderforge/) - Install via pip
+- 🔌 [**Model Context Protocol**](https://modelcontextprotocol.io/) - MCP specification
+- 🎨 [**Blender Python API**](https://docs.blender.org/api/current/) - Blender scripting reference
+- 🌐 [**PolyHaven**](https://polyhaven.com/) - Free HDRIs, textures, and models
+- 🎭 [**Sketchfab**](https://sketchfab.com/) - 3D model marketplace
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#-blenderforge)**
+
+Made with ❤️ by [Mithun Gowda B](https://github.com/mithun50)
+
+</div>
