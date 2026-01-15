@@ -109,7 +109,9 @@ BlenderForge works with **any MCP-compatible client** (481+ and growing).
 | [Getting Started](docs/getting-started.md) | Installation and setup |
 | [AI Clients](docs/ai-clients.md) | Configuration for each AI platform |
 | [Tools Reference](docs/tools-reference.md) | Complete tool documentation |
+| [AI Features](docs/ai-features.md) | AI material generator, NLP modeling, scene analysis |
 | [Asset Integrations](docs/asset-integrations.md) | PolyHaven, Sketchfab, AI generation |
+| [Blender API Reference](docs/blender-api-reference.md) | Python API quick reference |
 | [Architecture](docs/architecture.md) | How BlenderForge works |
 | [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
 | [Development](docs/development.md) | Contributing guide |

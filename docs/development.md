@@ -59,7 +59,10 @@ blenderforge/
 │   ├── conftest.py         # Pytest configuration
 │   ├── test_config.py      # Config tests
 │   ├── test_server.py      # Server tests
-│   └── test_telemetry.py   # Telemetry tests
+│   ├── test_tools.py       # Tool function tests
+│   ├── test_ai_features.py # AI-powered features tests
+│   ├── test_telemetry.py   # Telemetry tests
+│   └── test_integration.py # Integration tests
 ├── docs/                   # Documentation
 ├── .github/workflows/      # CI/CD pipelines
 ├── pyproject.toml          # Project configuration

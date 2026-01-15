@@ -248,3 +248,20 @@ No API key is required.
 - Don't download 8K textures unless necessary
 - Limit AI generation to what you need
 - Cache frequently used assets locally
+
+---
+
+## Built-in AI Features
+
+BlenderForge also includes powerful AI-assisted features that don't require external API keys:
+
+| Feature | Description |
+|---------|-------------|
+| **AI Material Generator** | Create PBR materials from text descriptions |
+| **Natural Language Modeling** | Create/modify objects with plain English |
+| **AI Scene Analyzer** | Professional critique with scores |
+| **Smart Auto-Rig** | Automatic character rigging |
+
+These features work locally without API keys or credits.
+
+See [AI Features](ai-features.md) for complete documentation.
