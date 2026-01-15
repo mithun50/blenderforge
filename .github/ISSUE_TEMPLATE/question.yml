@@ -1,0 +1,70 @@
+name: ❓ Question / Support
+description: Ask a question or get help with BlenderForge
+title: "[Question]: "
+labels: ["question", "support"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a question about BlenderForge? We're here to help!
+
+        **Before asking:**
+        - Check the [Documentation](https://github.com/mithun50/Blender-Forge/tree/main/docs)
+        - Search [existing issues](https://github.com/mithun50/Blender-Forge/issues)
+        - Review [Troubleshooting Guide](https://github.com/mithun50/Blender-Forge/blob/main/docs/troubleshooting.md)
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: Question Topic
+      description: What is your question about?
+      options:
+        - Installation / Setup
+        - AI Client Configuration
+        - Blender Addon
+        - MCP Tools Usage
+        - AI Features
+        - Asset Integrations
+        - Python API / Scripting
+        - Performance
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Your Question
+      description: What would you like to know?
+      placeholder: How do I...
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What Have You Tried?
+      description: What solutions have you already attempted?
+      placeholder: |
+        I tried:
+        1. ...
+        2. ...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment (if relevant)
+      description: Your setup details if relevant to the question
+      placeholder: |
+        - OS:
+        - Python version:
+        - Blender version:
+        - AI Client:
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that might help us answer your question.

@@ -236,13 +236,13 @@ curl -O https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py
 #### Alternative Download Methods
 
 1. **From GitHub Repository:**
-   - Go to [BlenderForge Repository](https://github.com/mithun50/Blender-Forge)
+   - Go to [BlenderForge Repository](https://github.com/mithun50/blenderforge)
    - Click on `addon.py` file
    - Click the **Download** button (↓) or **Raw** button, then save the page
 
 2. **Clone the Repository:**
    ```bash
-   git clone https://github.com/mithun50/Blender-Forge.git
+   git clone https://github.com/mithun50/blenderforge.git
    # addon.py is in the root directory
    ```
 

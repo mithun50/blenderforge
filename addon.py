@@ -1,4 +1,6 @@
 # BlenderForge - AI-powered Blender Integration
+# Copyright (c) 2025 Mithun Gowda B <mithungowda.b7411@gmail.com>
+# Licensed under the MIT License
 
 import base64
 import hashlib
@@ -26,15 +28,22 @@ from bpy.props import BoolProperty, IntProperty
 
 bl_info = {
     "name": "BlenderForge",
-    "author": "BlenderForge Team",
+    "author": "Mithun Gowda B",
     "version": (1, 0, 0),
     "blender": (3, 0, 0),
     "location": "View3D > Sidebar > BlenderForge",
     "description": "AI-powered Blender integration for 3D modeling",
     "category": "Interface",
+    "doc_url": "https://github.com/mithun50/blenderforge",
+    "tracker_url": "https://github.com/mithun50/blenderforge/issues",
 }
 
-RODIN_FREE_TRIAL_KEY = "k9TcfFoEhNd9cCPP2guHAHHHkctZHIRhZDywZ1euGUXwihbYLpOjQhofby80NJez"
+# API keys should be set via environment variables for security
+# Set BLENDERFORGE_RODIN_API_KEY environment variable to use Rodin API
+# Or configure via addon preferences
+def get_rodin_api_key():
+    """Get Rodin API key from environment or return None."""
+    return os.environ.get("BLENDERFORGE_RODIN_API_KEY")
 
 # Add User-Agent as required by Poly Haven API
 REQ_HEADERS = requests.utils.default_headers()
@@ -1266,9 +1275,11 @@ class BlenderForgeServer:
                                 4. Restart the connection to Claude""",
                 }
             mode = bpy.context.scene.blenderforge_hyper3d_mode
+            api_key = bpy.context.scene.blenderforge_hyper3d_api_key
+            key_type = "configured" if api_key else "not_set"
             message = (
                 f"Hyper3D Rodin integration is enabled and ready to use. Mode: {mode}. "
-                + f"Key type: {'private' if bpy.context.scene.blenderforge_hyper3d_api_key != RODIN_FREE_TRIAL_KEY else 'free_trial'}"
+                + f"Key type: {key_type}"
             )
             return {"enabled": True, "message": message}
         else:
@@ -3654,15 +3665,24 @@ class BLENDERFORGE_PT_Panel(bpy.types.Panel):
             layout.label(text=f"Running on port {scene.blenderforge_port}")
 
 
-# Operator to set Hyper3D API Key
+# Operator to guide user to get Hyper3D API Key
 class BLENDERFORGE_OT_SetFreeTrialHyper3DAPIKey(bpy.types.Operator):
     bl_idname = "blendermcp.set_hyper3d_free_trial_api_key"
-    bl_label = "Set Free Trial API Key"
+    bl_label = "Get API Key"
+    bl_description = "Opens Hyper3D website to get your API key"
 
     def execute(self, context):
-        context.scene.blenderforge_hyper3d_api_key = RODIN_FREE_TRIAL_KEY
-        context.scene.blenderforge_hyper3d_mode = "MAIN_SITE"
-        self.report({"INFO"}, "API Key set successfully!")
+        import webbrowser
+        # Check for environment variable first
+        env_key = get_rodin_api_key()
+        if env_key:
+            context.scene.blenderforge_hyper3d_api_key = env_key
+            context.scene.blenderforge_hyper3d_mode = "MAIN_SITE"
+            self.report({"INFO"}, "API Key loaded from environment!")
+            return {"FINISHED"}
+        # Otherwise, guide user to get their own key
+        webbrowser.open("https://hyper3d.ai/")
+        self.report({"INFO"}, "Please sign up at hyper3d.ai to get your free API key")
         return {"FINISHED"}
 
 

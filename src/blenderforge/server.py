@@ -1,5 +1,9 @@
 # BlenderForge Server
+# Copyright (c) 2025 Mithun Gowda B <mithungowda.b7411@gmail.com>
+# Licensed under the MIT License
+
 import base64
+import re
 import json
 import logging
 import os
@@ -27,6 +31,62 @@ logger = logging.getLogger("BlenderForgeServer")
 # Default configuration
 DEFAULT_HOST = "localhost"
 DEFAULT_PORT = 9876
+
+# Security configuration
+CODE_EXECUTION_ENABLED = os.getenv("BLENDERFORGE_ALLOW_CODE_EXECUTION", "true").lower() == "true"
+
+# Dangerous patterns that should be blocked in code execution
+DANGEROUS_CODE_PATTERNS = [
+    r"\bos\.system\b",
+    r"\bsubprocess\b",
+    r"\b__import__\b",
+    r"\beval\s*\(",
+    r"\bexec\s*\(",
+    r"\bopen\s*\([^)]*['\"][wa]",  # Writing to files
+    r"\bshutil\.rmtree\b",
+    r"\bos\.remove\b",
+    r"\bos\.unlink\b",
+    r"\bos\.rmdir\b",
+    r"\bsocket\b",
+    r"\brequests\b",
+    r"\burllib\b",
+    r"\bhttp\b",
+]
+
+# Allowed safe imports for code execution
+ALLOWED_IMPORTS = {
+    "bpy", "bmesh", "mathutils", "math", "random", "json", "re",
+    "collections", "itertools", "functools", "typing",
+}
+
+
+def validate_code_security(code: str) -> tuple[bool, str]:
+    """
+    Validate code for potentially dangerous patterns.
+
+    Returns:
+        Tuple of (is_safe, error_message)
+    """
+    if not CODE_EXECUTION_ENABLED:
+        return False, "Code execution is disabled. Set BLENDERFORGE_ALLOW_CODE_EXECUTION=true to enable."
+
+    # Check for dangerous patterns
+    for pattern in DANGEROUS_CODE_PATTERNS:
+        if re.search(pattern, code, re.IGNORECASE):
+            return False, f"Code contains potentially dangerous pattern: {pattern}"
+
+    # Check for suspicious imports
+    import_pattern = r"(?:from\s+(\w+)|import\s+(\w+))"
+    imports = re.findall(import_pattern, code)
+    for imp in imports:
+        module = imp[0] or imp[1]
+        if module and module not in ALLOWED_IMPORTS:
+            # Allow submodules of allowed imports (e.g., bpy.ops)
+            base_module = module.split(".")[0]
+            if base_module not in ALLOWED_IMPORTS:
+                return False, f"Import of '{module}' is not allowed. Allowed: {', '.join(sorted(ALLOWED_IMPORTS))}"
+
+    return True, ""
 
 
 @dataclass
@@ -365,11 +425,22 @@ def get_viewport_screenshot(ctx: Context, max_size: int = 800) -> Image:
 @mcp.tool()
 def execute_blender_code(ctx: Context, code: str) -> str:
     """
-    Execute arbitrary Python code in Blender. Make sure to do it step-by-step by breaking it into smaller chunks.
+    Execute Python code in Blender with security validation.
 
     Parameters:
-    - code: The Python code to execute
+    - code: The Python code to execute (must use only allowed imports: bpy, bmesh, mathutils, math, random, json, re, collections, itertools, functools, typing)
+
+    Security:
+    - Code is validated against dangerous patterns (os.system, subprocess, eval, exec, etc.)
+    - Only Blender-safe imports are allowed
+    - Can be disabled via BLENDERFORGE_ALLOW_CODE_EXECUTION=false environment variable
     """
+    # Security validation
+    is_safe, error_msg = validate_code_security(code)
+    if not is_safe:
+        logger.warning(f"Code security validation failed: {error_msg}")
+        return f"Security validation failed: {error_msg}"
+
     try:
         # Get the global connection
         blender = get_blender_connection()
