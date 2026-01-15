@@ -233,8 +233,16 @@ body {
   color: var(--bf-gray-300);
 }
 
-.md-header__button.md-logo {
-  display: none;
+/* Hide logo/icon completely from navbar */
+.md-header__button.md-logo,
+.md-logo,
+a.md-logo,
+[data-md-component="logo"],
+.md-header__inner > .md-header__button:first-child {
+  display: none !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .md-header__title {
