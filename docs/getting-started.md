@@ -216,16 +216,34 @@ The Blender addon receives commands from BlenderForge and executes them inside B
 
 ### Download the Addon
 
+#### Direct Download (Recommended)
+
+**[⬇️ Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As...)
+
+Or use the command line:
+
+```bash
+# macOS/Linux
+curl -O https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py
+
+# Windows (PowerShell)
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py" -OutFile "addon.py"
+
+# Windows (Command Prompt with curl)
+curl -O https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py
+```
+
+#### Alternative Download Methods
+
 1. **From GitHub Repository:**
-   - Go to [BlenderForge Repository](https://github.com/mithun50/blenderforge)
-   - Download `addon.py` (click on file → "Download" or "Raw" → Save)
+   - Go to [BlenderForge Repository](https://github.com/mithun50/Blender-Forge)
+   - Click on `addon.py` file
+   - Click the **Download** button (↓) or **Raw** button, then save the page
 
-2. **From PyPI Installation:**
+2. **Clone the Repository:**
    ```bash
-   # Find where blenderforge is installed
-   pip show blenderforge
-
-   # The addon.py is in the package location
+   git clone https://github.com/mithun50/Blender-Forge.git
+   # addon.py is in the root directory
    ```
 
 ### Install in Blender
@@ -234,66 +252,97 @@ The Blender addon receives commands from BlenderForge and executes them inside B
 
 1. **Open Blender**
 
-2. **Navigate to Add-ons:**
-   - Go to `Edit` → `Preferences`
-   - Click on `Add-ons` tab
+2. **Open Preferences:**
+   - Go to `Edit` → `Preferences` (or press `Ctrl+,` / `Cmd+,`)
 
-3. **Install the Addon:**
-   - Click `Install...` button (top-right)
-   - Navigate to and select `addon.py`
+3. **Navigate to Add-ons:**
+   - Click on the `Add-ons` tab in the left sidebar
+
+4. **Install the Addon:**
+   - Click the `Install...` button (top-right corner)
+   - Navigate to where you downloaded `addon.py`
+   - Select `addon.py`
    - Click `Install Add-on`
 
-4. **Enable the Addon:**
-   - In the search box, type "BlenderForge"
-   - Check the checkbox next to "BlenderForge"
-   - The addon is now enabled
+5. **Enable the Addon:**
+   - After installation, search for "BlenderForge" in the search box
+   - Check the checkbox next to **"BlenderForge"** to enable it
+   - You should see a checkmark appear
 
-5. **Save Preferences (Optional):**
-   - Click the hamburger menu (☰) → `Save Preferences`
-   - This ensures the addon loads automatically
+6. **Save Preferences:**
+   - Click the hamburger menu (☰) at the bottom-left
+   - Select `Save Preferences`
+   - This ensures the addon loads automatically every time you start Blender
+
+#### Visual Guide
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Blender Preferences                                      [X]  │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐                                                   │
+│  │Interface │   Search: [BlenderForge        ]    [Install...] │
+│  │Themes    │                                                   │
+│  │Viewport  │   ☑ BlenderForge                                  │
+│  │Lights    │     AI-powered Blender control via MCP            │
+│  │Editing   │     Version: 1.0.0                                │
+│  │Animation │     Author: BlenderForge Team                     │
+│  │▶Add-ons  │                                                   │
+│  │Input     │   ┌─────────────────────────────────────────────┐ │
+│  │Navigation│   │ Preferences:                                │ │
+│  │Keymap    │   │  Port: [9876    ]                           │ │
+│  │System    │   │  ☑ Use PolyHaven                            │ │
+│  │Save&Load │   │  ☐ Use Sketchfab  API Key: [••••••••••]     │ │
+│  │File Paths│   │  ☐ Use Hyper3D    API Key: [          ]     │ │
+│  └──────────┘   └─────────────────────────────────────────────┘ │
+│                                                                 │
+│  [☰] ────────────────────────────────────────── [Save Preferences]
+└─────────────────────────────────────────────────────────────────┘
+```
 
 #### Command Line Method (Advanced)
 
-For automated installation or scripting:
+For automated installation, copy `addon.py` directly to Blender's addon directory:
 
+**macOS:**
 ```bash
-# Find Blender's addon directory
-# macOS
-~/Library/Application Support/Blender/4.0/scripts/addons/
+cp addon.py ~/Library/Application\ Support/Blender/4.0/scripts/addons/
+```
 
-# Windows
-%APPDATA%\Blender Foundation\Blender\4.0\scripts\addons\
+**Windows (PowerShell):**
+```powershell
+Copy-Item addon.py "$env:APPDATA\Blender Foundation\Blender\4.0\scripts\addons\"
+```
 
-# Linux
-~/.config/blender/4.0/scripts/addons/
-
-# Copy addon.py to the addons directory
-cp addon.py /path/to/blender/scripts/addons/
+**Linux:**
+```bash
+cp addon.py ~/.config/blender/4.0/scripts/addons/
 ```
 
 Then enable in Blender:
 ```
-Edit → Preferences → Add-ons → Search "BlenderForge" → Enable
+Edit → Preferences → Add-ons → Search "BlenderForge" → Enable checkbox
 ```
 
 ### Verify Addon Installation
 
 1. **Check Sidebar Panel:**
-   - Press `N` to open the sidebar
+   - Press `N` to open the sidebar (right side of 3D viewport)
    - Look for the **BlenderForge** tab
-   - You should see connection settings and options
+   - You should see:
+     - Server status indicator
+     - Port configuration
+     - Connect/Disconnect button
+     - Integration checkboxes (PolyHaven, Sketchfab, etc.)
 
-2. **Check Blender Console:**
-   - `Window` → `Toggle System Console` (Windows)
-   - Or run Blender from terminal (macOS/Linux)
-   - Look for "BlenderForge addon registered" message
+2. **Check Blender Console for Confirmation:**
+   - **Windows:** `Window` → `Toggle System Console`
+   - **macOS/Linux:** Launch Blender from terminal to see output
+   - Look for message: `"BlenderForge addon registered"`
 
-3. **Verify Panel Contents:**
-   The BlenderForge panel should show:
-   - Server status (Disconnected/Connected)
-   - Port setting (default: 9876)
-   - Connect/Disconnect button
-   - Integration checkboxes (PolyHaven, Sketchfab, etc.)
+3. **Test the Panel:**
+   - The panel should display "Status: Disconnected" initially
+   - This is normal - you'll connect after configuring your AI client
 
 ---
 

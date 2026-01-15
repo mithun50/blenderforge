@@ -35,9 +35,11 @@ pip install blenderforge
 
 ### 2. Install the Blender Addon
 
-1. Download `addon.py` from this repository
+1. **[⬇️ Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As)
 2. In Blender: `Edit` → `Preferences` → `Add-ons` → `Install...`
-3. Enable the "BlenderForge" addon
+3. Select `addon.py` and click `Install Add-on`
+4. Enable the "BlenderForge" addon (check the checkbox)
+5. Click `Save Preferences` to keep it enabled
 
 ### 3. Configure Your AI Assistant
 
