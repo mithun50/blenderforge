@@ -199,47 +199,184 @@ body {
 }
 
 /* ============================================
-   Header / Navigation - Sleek & Professional
+   Header / Navigation - Modern & Professional
    ============================================ */
 
 .md-header {
-  background: var(--bf-black);
-  box-shadow: var(--bf-shadow);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(135deg, var(--bf-black) 0%, var(--bf-gray-900) 100%);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
 [data-md-color-scheme="slate"] .md-header {
-  background: rgba(13, 13, 13, 0.95);
+  background: linear-gradient(135deg, rgba(13, 13, 13, 0.98) 0%, rgba(26, 26, 26, 0.98) 100%);
   border-bottom: 1px solid var(--bf-gray-800);
 }
 
-.md-header__title {
-  font-weight: 700;
-  letter-spacing: -0.01em;
+.md-header__inner {
+  padding: 0 1rem;
 }
 
+.md-header__button {
+  color: var(--bf-white);
+  opacity: 0.9;
+  transition: all var(--bf-transition-fast);
+}
+
+.md-header__button:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.md-header__title {
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 1.1rem;
+}
+
+.md-header__topic {
+  font-weight: 600;
+}
+
+.md-header__ellipsis {
+  position: relative;
+}
+
+/* Logo styling */
+.md-header__button.md-logo {
+  padding: 0.4rem;
+}
+
+.md-header__button.md-logo img,
+.md-header__button.md-logo svg {
+  height: 1.8rem;
+  width: auto;
+  filter: brightness(0) invert(1);
+  transition: transform var(--bf-transition-fast);
+}
+
+.md-header__button.md-logo:hover img,
+.md-header__button.md-logo:hover svg {
+  transform: scale(1.1);
+}
+
+/* Navigation Tabs - Modern Style */
 .md-tabs {
   background: var(--bf-black);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.md-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 [data-md-color-scheme="slate"] .md-tabs {
   background: var(--bf-dark);
+  border-bottom-color: var(--bf-gray-800);
+}
+
+.md-tabs__list {
+  padding: 0 0.5rem;
+}
+
+.md-tabs__item {
+  height: auto;
 }
 
 .md-tabs__link {
   font-weight: 500;
-  font-size: 0.85rem;
-  opacity: 0.85;
-  transition: opacity var(--bf-transition-fast), transform var(--bf-transition-fast);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.7;
+  padding: 0.875rem 1.25rem;
+  margin: 0 0.125rem;
+  border-radius: var(--bf-radius) var(--bf-radius) 0 0;
+  transition: all var(--bf-transition);
+  position: relative;
+}
+
+.md-tabs__link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: var(--bf-white);
+  transition: transform var(--bf-transition);
 }
 
 .md-tabs__link:hover {
   opacity: 1;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.md-tabs__link:hover::after {
+  transform: translateX(-50%) scaleX(0.5);
 }
 
 .md-tabs__link--active {
   opacity: 1;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.md-tabs__link--active::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Source/GitHub link in header */
+.md-source {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: var(--bf-radius);
+  padding: 0.5rem 0.75rem;
+  margin-right: 0.5rem;
+  transition: all var(--bf-transition);
+}
+
+.md-source:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.md-source__icon {
+  color: var(--bf-white);
+}
+
+.md-source__repository {
   font-weight: 600;
+  font-size: 0.8rem;
+}
+
+/* Mobile header adjustments */
+@media screen and (max-width: 76.1875em) {
+  .md-header {
+    padding: 0.25rem 0;
+  }
+
+  .md-header__title {
+    font-size: 1rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .md-tabs__link {
+    padding: 0.75rem 1rem;
+    font-size: 0.7rem;
+  }
+
+  .md-source {
+    display: none;
+  }
 }
 
 /* ============================================
