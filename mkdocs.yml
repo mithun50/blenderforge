@@ -13,7 +13,7 @@ theme:
   name: material
   language: en
   logo: assets/logo.svg
-  favicon: assets/favicon.png
+  favicon: assets/favicon.svg
 
   palette:
     # Light mode
@@ -82,6 +82,9 @@ extra:
 
 extra_css:
   - stylesheets/extra.css
+
+extra_javascript:
+  - javascripts/extra.js
 
 markdown_extensions:
   # Python Markdown
