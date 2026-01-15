@@ -1019,3 +1019,317 @@ body {
   outline: 2px solid var(--bf-purple-500);
   outline-offset: 2px;
 }
+
+/* ============================================
+   Enhanced Hero Section
+   ============================================ */
+
+.hero-section {
+  text-align: center;
+  padding: 2rem 0 3rem;
+  position: relative;
+}
+
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--bf-purple-500), var(--bf-amber-500), transparent);
+}
+
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+/* ============================================
+   Demo Container
+   ============================================ */
+
+.demo-container {
+  position: relative;
+  border-radius: 20px;
+  padding: 0.5rem;
+  background: linear-gradient(135deg, var(--bf-purple-700), var(--bf-purple-900));
+  margin: 2rem 0;
+}
+
+.demo-container::before {
+  content: '💬 Conversation Demo';
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: var(--bf-purple-600);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.demo-container pre {
+  margin: 0 !important;
+  border: none !important;
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ============================================
+   Card Gradient Borders
+   ============================================ */
+
+.md-typeset .card {
+  position: relative;
+  background: var(--md-default-bg-color);
+}
+
+.md-typeset .card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--bf-purple-500), var(--bf-amber-500));
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--bf-transition-smooth);
+  pointer-events: none;
+}
+
+.md-typeset .card:hover::after {
+  opacity: 1;
+}
+
+/* Card headers */
+.md-typeset .card h3 {
+  margin-top: 0;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bf-glass-border);
+  margin-bottom: 1rem;
+}
+
+/* ============================================
+   Enhanced Light Mode
+   ============================================ */
+
+[data-md-color-scheme="default"] {
+  --bf-glass-bg: rgba(124, 58, 237, 0.03);
+  --bf-glass-border: rgba(124, 58, 237, 0.1);
+}
+
+[data-md-color-scheme="default"] .md-typeset .card {
+  background: white;
+  box-shadow:
+    0 4px 20px rgba(124, 58, 237, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+[data-md-color-scheme="default"] .md-header {
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+}
+
+[data-md-color-scheme="default"] .md-typeset table:not([class]) th {
+  background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+}
+
+/* ============================================
+   Dark Mode Enhancements
+   ============================================ */
+
+[data-md-color-scheme="slate"] .md-typeset .card {
+  background: rgba(30, 25, 50, 0.8);
+  border-color: rgba(168, 85, 247, 0.2);
+}
+
+[data-md-color-scheme="slate"] .md-typeset .card:hover {
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+[data-md-color-scheme="slate"] .demo-container {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(88, 28, 135, 0.5));
+}
+
+/* ============================================
+   Better Typography
+   ============================================ */
+
+.md-typeset {
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.md-typeset p {
+  margin-bottom: 1.2em;
+}
+
+.md-typeset h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.md-typeset h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Better blockquotes */
+.md-typeset blockquote {
+  border-left: 4px solid var(--bf-purple-500);
+  background: linear-gradient(90deg, rgba(124, 58, 237, 0.1), transparent);
+  padding: 1rem 1.5rem;
+  border-radius: 0 12px 12px 0;
+  margin: 1.5rem 0;
+  font-style: italic;
+}
+
+.md-typeset blockquote p {
+  margin: 0;
+}
+
+/* ============================================
+   Table Dark Mode Fix
+   ============================================ */
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) {
+  background: rgba(20, 15, 35, 0.6);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background: linear-gradient(135deg, #5b21b6, #7c3aed);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) td {
+  border-color: rgba(168, 85, 247, 0.1);
+}
+
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) tr:hover td {
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* ============================================
+   Stats Cards Enhancement
+   ============================================ */
+
+.stat-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(
+    from 0deg,
+    transparent,
+    var(--bf-purple-500),
+    transparent 30%
+  );
+  animation: rotate-border 4s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.stat-card:hover::before {
+  opacity: 0.3;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: var(--md-default-bg-color);
+  border-radius: 14px;
+  z-index: 0;
+}
+
+.stat-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes rotate-border {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   Content Width & Spacing
+   ============================================ */
+
+.md-content {
+  max-width: none;
+}
+
+.md-content__inner {
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+/* ============================================
+   Horizontal Rule Styling
+   ============================================ */
+
+.md-typeset hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bf-purple-500), var(--bf-amber-500), transparent);
+  margin: 3rem 0;
+  opacity: 0.5;
+}
+
+/* ============================================
+   Better List Styling
+   ============================================ */
+
+.md-typeset ul:not(.tabbed-labels) li {
+  margin-bottom: 0.5em;
+}
+
+.md-typeset ul:not(.tabbed-labels) li::marker {
+  color: var(--bf-purple-500);
+}
+
+.md-typeset ol li::marker {
+  color: var(--bf-amber-500);
+  font-weight: 600;
+}
+
+/* ============================================
+   Tooltip Styling
+   ============================================ */
+
+.md-typeset abbr[title] {
+  text-decoration: underline dotted var(--bf-purple-400);
+  cursor: help;
+}
+
+/* ============================================
+   Page Navigation Enhancement
+   ============================================ */
+
+.md-footer__inner {
+  padding: 1.5rem;
+}
+
+.md-footer__link--prev .md-footer__title,
+.md-footer__link--next .md-footer__title {
+  color: white;
+  font-weight: 600;
+}
+
+.md-footer__direction {
+  color: var(--bf-amber-400);
+}

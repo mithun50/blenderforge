@@ -8,7 +8,7 @@
 [![PyPI Downloads](https://img.shields.io/pypi/dm/blenderforge?color=green&label=Downloads)](https://pypi.org/project/blenderforge/)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10+-3776ab?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Blender 3.0+](https://img.shields.io/badge/Blender-3.0+-E87D0D?logo=blender&logoColor=white)](https://www.blender.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/mithun50/blenderforge/blob/main/LICENSE)
 
 [![GitHub Stars](https://img.shields.io/github/stars/mithun50/blenderforge?style=social)](https://github.com/mithun50/blenderforge/stargazers)
 [![GitHub Forks](https://img.shields.io/github/forks/mithun50/blenderforge?style=social)](https://github.com/mithun50/blenderforge/network/members)
@@ -121,19 +121,21 @@ BlenderForge works with **any MCP-compatible client** (481+ and growing).
 
 ---
 
-## Documentation
+## 📚 Documentation
+
+> **Full documentation available at: [mithun50.github.io/blenderforge](https://mithun50.github.io/blenderforge/)**
 
 | Document | Description |
 |----------|-------------|
-| [Getting Started](docs/getting-started.md) | Installation and setup |
-| [AI Clients](docs/ai-clients.md) | Configuration for each AI platform |
-| [Tools Reference](docs/tools-reference.md) | Complete tool documentation |
-| [AI Features](docs/ai-features.md) | AI material generator, NLP modeling, scene analysis |
-| [Asset Integrations](docs/asset-integrations.md) | PolyHaven, Sketchfab, AI generation |
-| [Blender API Reference](docs/blender-api-reference.md) | Python API quick reference |
-| [Architecture](docs/architecture.md) | How BlenderForge works |
-| [Troubleshooting](docs/troubleshooting.md) | Common issues and solutions |
-| [Development](docs/development.md) | Contributing guide |
+| [📖 Getting Started](https://mithun50.github.io/blenderforge/getting-started/) | Installation and setup guide |
+| [🤖 AI Clients](https://mithun50.github.io/blenderforge/ai-clients/) | Configuration for each AI platform |
+| [🔧 Tools Reference](https://mithun50.github.io/blenderforge/tools-reference/) | Complete tool documentation (40+ tools) |
+| [✨ AI Features](https://mithun50.github.io/blenderforge/ai-features/) | AI material generator, NLP modeling, scene analysis |
+| [📦 Asset Integrations](https://mithun50.github.io/blenderforge/asset-integrations/) | PolyHaven, Sketchfab, AI generation |
+| [🐍 Blender API Reference](https://mithun50.github.io/blenderforge/blender-api-reference/) | Python API quick reference |
+| [🏗️ Architecture](https://mithun50.github.io/blenderforge/architecture/) | How BlenderForge works |
+| [🔍 Troubleshooting](https://mithun50.github.io/blenderforge/troubleshooting/) | Common issues and solutions |
+| [👨‍💻 Development](https://mithun50.github.io/blenderforge/development/) | Contributing guide |
 
 ---
 
@@ -149,7 +151,7 @@ BlenderForge works with **any MCP-compatible client** (481+ and growing).
 
 ## Contributing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+We welcome contributions! See [CONTRIBUTING.md](https://github.com/mithun50/blenderforge/blob/main/CONTRIBUTING.md) for guidelines.
 
 ```bash
 # Development setup
@@ -163,7 +165,7 @@ pytest
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see [LICENSE](https://github.com/mithun50/blenderforge/blob/main/LICENSE) for details.
 
 ---
 
