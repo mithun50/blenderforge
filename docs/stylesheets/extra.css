@@ -336,12 +336,20 @@ a.md-logo,
 
 /* GitHub Source Button */
 .md-source {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--bf-radius);
-  padding: 0.4rem 0.75rem;
-  margin-right: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  margin-left: auto;
+  height: auto;
+  min-height: 2rem;
   transition: all var(--bf-transition-fast);
+  vertical-align: middle;
 }
 
 .md-source:hover {
@@ -350,19 +358,37 @@ a.md-logo,
 }
 
 .md-source__icon {
-  width: 1rem;
-  height: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  flex-shrink: 0;
+}
+
+.md-source__icon svg {
+  width: 100%;
+  height: 100%;
 }
 
 .md-source__repository {
+  display: flex;
+  align-items: center;
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 .md-source__facts {
   display: none;
+}
+
+/* Header inner flex alignment */
+.md-header__inner {
+  display: flex;
+  align-items: center;
 }
 
 /* Search Box */
