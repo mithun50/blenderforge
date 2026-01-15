@@ -76,12 +76,33 @@ def validate_code_security(code: str) -> tuple[bool, str]:
             return False, f"Code contains potentially dangerous pattern: {pattern}"
 
     # Check for suspicious imports
-    import_pattern = r"(?:from\s+(\w+)|import\s+(\w+))"
-    imports = re.findall(import_pattern, code)
-    for imp in imports:
-        module = imp[0] or imp[1]
-        if module and module not in ALLOWED_IMPORTS:
-            # Allow submodules of allowed imports (e.g., bpy.ops)
+    # We only care about the base module, not what's imported from it
+    # "from collections import defaultdict" -> check "collections" (allowed)
+    # "import os" -> check "os" (not allowed)
+
+    # Pattern for "from X import Y" - capture the module X
+    from_pattern = r"^\s*from\s+(\w+(?:\.\w+)*)\s+import"
+    # Pattern for "import X" at start of line - capture the module X
+    import_pattern = r"^\s*import\s+(\w+(?:\.\w+)*)"
+
+    for line in code.split("\n"):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+
+        # Check "from X import" pattern
+        from_match = re.match(from_pattern, line)
+        if from_match:
+            module = from_match.group(1)
+            base_module = module.split(".")[0]
+            if base_module not in ALLOWED_IMPORTS:
+                return False, f"Import from '{module}' is not allowed. Allowed: {', '.join(sorted(ALLOWED_IMPORTS))}"
+            continue
+
+        # Check "import X" pattern
+        import_match = re.match(import_pattern, line)
+        if import_match:
+            module = import_match.group(1)
             base_module = module.split(".")[0]
             if base_module not in ALLOWED_IMPORTS:
                 return False, f"Import of '{module}' is not allowed. Allowed: {', '.join(sorted(ALLOWED_IMPORTS))}"
