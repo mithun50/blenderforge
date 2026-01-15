@@ -250,11 +250,25 @@ a.md-logo,
   font-size: 1.1rem;
   letter-spacing: -0.02em;
   text-transform: uppercase;
+  color: var(--bf-white) !important;
+  background: transparent !important;
+}
+
+.md-header__title .md-header__ellipsis {
+  background: transparent !important;
+  color: var(--bf-white) !important;
 }
 
 .md-header__topic {
   font-weight: 600;
   font-size: 0.85rem;
+  color: var(--bf-white) !important;
+  background: transparent !important;
+}
+
+.md-header__topic .md-ellipsis {
+  background: transparent !important;
+  color: inherit !important;
 }
 
 .md-header__topic + .md-header__topic {
