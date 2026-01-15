@@ -17,6 +17,40 @@
     addVersionBadge();
     enhanceCopyButtons();
     smoothScrollAnchors();
+    handleAddonDownload();
+  }
+
+  /**
+   * Force download for addon.py link
+   */
+  function handleAddonDownload() {
+    document.addEventListener('click', function(e) {
+      var link = e.target.closest('a[href*="addon.py"]');
+      if (!link) return;
+
+      e.preventDefault();
+
+      var url = 'https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py';
+
+      fetch(url)
+        .then(function(response) {
+          return response.blob();
+        })
+        .then(function(blob) {
+          var downloadUrl = window.URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = 'addon.py';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(downloadUrl);
+        })
+        .catch(function(err) {
+          // Fallback: open in new tab
+          window.open(url, '_blank');
+        });
+    });
   }
 
   /**

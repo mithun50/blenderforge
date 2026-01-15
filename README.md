@@ -52,7 +52,7 @@ pip install blenderforge
 
 ### 2. Install the Blender Addon
 
-1. **[⬇️ Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As)
+1. **[Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As)
 2. In Blender: `Edit` → `Preferences` → `Add-ons` → `Install...`
 3. Select `addon.py` and click `Install Add-on`
 4. Enable the "BlenderForge" addon (check the checkbox)

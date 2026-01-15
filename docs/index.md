@@ -56,7 +56,7 @@ AI: I'll create that for you...
 
 ### 2. Install the Blender Addon
 
-1. **[Download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)** (Right-click → Save Link As)
+1. **[Click here to download addon.py](https://raw.githubusercontent.com/mithun50/Blender-Forge/main/addon.py)**
 2. In Blender: `Edit` → `Preferences` → `Add-ons` → `Install...`
 3. Select `addon.py` and enable the checkbox
 4. Click `Save Preferences`
