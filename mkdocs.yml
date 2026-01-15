@@ -53,13 +53,9 @@ theme:
     - content.code.copy
     - content.code.annotate
     - content.tabs.link
-    - content.action.edit
-    - content.action.view
 
   icon:
     repo: fontawesome/brands/github
-    edit: material/pencil
-    view: material/eye
 
 extra:
   social:
