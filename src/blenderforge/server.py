@@ -324,8 +324,145 @@ async def server_lifespan(server: FastMCP) -> AsyncIterator[dict[str, Any]]:
         logger.info("BlenderForge server shut down")
 
 
-# Create the MCP server with lifespan support
-mcp = FastMCP("BlenderForge", lifespan=server_lifespan)
+# MCP Server Instructions for AI Clients
+MCP_INSTRUCTIONS = """
+# BlenderForge MCP - AI Instructions
+
+You are connected to BlenderForge, an MCP server for controlling Blender through natural language.
+
+## Quick Start
+1. Always call `get_scene_info` first to understand the current scene state
+2. Use meaningful object names (e.g., "Chair_Main" not "Cube.001")
+3. Organize complex scenes with `create_collection` and `move_to_collection`
+4. Save work frequently with `save_blend`
+
+## Tool Categories (84 tools available)
+
+### Scene & Objects
+- `get_scene_info` - Get scene overview (ALWAYS START HERE)
+- `get_object_info` - Get specific object details
+- `create_object` - Create primitives (CUBE, SPHERE, CYLINDER, CONE, TORUS, PLANE, etc.)
+- `set_object_transform` - Set location, rotation, scale
+- `nlp_create_object` - Create objects from natural language description
+
+### Modifiers (Non-Destructive Editing)
+- `boolean_operation` - Union, Difference, Intersect between objects
+- `add_modifier` - Add any Blender modifier
+- `create_array` - Array with count and offset
+- `add_bevel` - Bevel edges with width and segments
+- `mirror_object` - Mirror across X, Y, or Z axis
+- `subdivide_smooth` - Subdivision surface smoothing
+
+### Mesh Editing
+- `extrude_faces` - Extrude selected faces
+- `inset_faces` - Inset faces with thickness
+- `loop_cut` - Add loop cuts to mesh
+- `merge_vertices` - Merge vertices by distance
+- `join_objects` - Combine multiple objects into one
+- `separate_by_loose` - Separate disconnected parts
+
+### Materials & Textures
+- `set_material` - Apply or create materials with color
+- `ai_generate_material` - AI-powered PBR material from description
+
+### Animation
+- `insert_keyframe` - Add keyframe for location/rotation/scale
+- `set_animation_range` - Set start and end frames
+- `create_turntable` - 360° rotation animation for product shots
+- `add_shape_key` - Add morph targets
+- `animate_path` - Animate object along a curve
+- `bake_animation` - Bake simulation to keyframes
+
+### Physics Simulation
+- `add_rigid_body` - Add physics (ACTIVE for dynamic, PASSIVE for static)
+- `add_cloth_simulation` - Cloth physics with presets (COTTON, SILK, LEATHER, etc.)
+- `add_collision` - Make object a collision surface
+- `create_force_field` - Add forces (WIND, VORTEX, TURBULENCE)
+- `add_particle_system` - Particle emitter
+- `bake_physics` - Cache physics simulation
+
+### Camera & Rendering
+- `create_camera` - Add camera to scene
+- `configure_camera` - Set focal length, DOF, aperture
+- `camera_look_at` - Point camera at target
+- `set_render_settings` - Engine (CYCLES/EEVEE), samples, resolution
+- `render_image` - Render current frame to file
+- `render_animation` - Render frame sequence
+- `setup_studio_render` - One-click professional studio lighting
+
+### Curves & Text
+- `create_bezier_curve` - Create curve from control points
+- `create_text_object` - 3D text with font and extrusion
+- `curve_to_mesh` - Convert curve to mesh
+- `create_pipe` - Create pipe/tube along curve
+
+### Scene Organization
+- `create_collection` - Create object groups
+- `move_to_collection` - Organize objects
+- `save_blend` - Save .blend file
+- `export_scene` - Export to FBX, glTF, OBJ formats
+- `purge_unused` - Clean up unused data
+
+### Asset Libraries
+- `get_polyhaven_status` - Check PolyHaven availability
+- `search_polyhaven_assets` - Search free HDRIs, textures, models
+- `download_polyhaven_asset` - Download and apply assets
+- `search_sketchfab_models` - Search Sketchfab marketplace
+- `download_sketchfab_model` - Import 3D models
+
+### AI-Powered Features
+- `ai_generate_material` - Generate PBR materials from text description
+- `nlp_create_object` - Create objects using natural language
+- `ai_analyze_scene` - Get professional scene critique with scores
+- `auto_rig_character` - Automatic character rigging
+- `auto_lighting` - Apply studio/cinematic/dramatic lighting presets
+
+### Procedural Generation
+- `scatter_on_surface` - Distribute objects on mesh surface
+- `create_procedural_terrain` - Generate terrain with noise
+
+## Recommended Workflows
+
+### Product Visualization
+1. `get_scene_info` - Check scene
+2. `create_object` or import - Add product
+3. `set_material` / `ai_generate_material` - Materials
+4. `setup_studio_render` - Professional lighting
+5. `create_turntable` - 360° animation
+6. `render_animation` - Export
+
+### Hard Surface Modeling
+1. `create_object` - Base shape
+2. `boolean_operation` - Cut/combine shapes
+3. `add_bevel` - Refine edges
+4. `set_material` - Apply materials
+
+### Physics Animation
+1. Create objects
+2. `add_rigid_body` (ACTIVE) - Moving objects
+3. `add_collision` - Ground/walls
+4. `bake_physics` - Cache simulation
+5. `render_animation` - Export
+
+## Best Practices
+- Prefer modifiers over direct mesh editing (non-destructive)
+- Use collections to organize large scenes
+- Set up cameras before final rendering
+- Bake physics before rendering animations
+- Use EEVEE for fast previews, CYCLES for final quality
+
+## Error Handling
+- If "Object not found": Use `get_scene_info` to check exact names
+- If connection fails: Ensure Blender addon shows "Connected"
+- Names are case-sensitive
+
+## Team
+BlenderForge by @mithun50, @nevil06, @lekhanpro, @appukannadiga, @NextGenXplorer
+Documentation: https://mithun50.github.io/blenderforge/
+"""
+
+# Create the MCP server with lifespan support and instructions
+mcp = FastMCP("BlenderForge", lifespan=server_lifespan, instructions=MCP_INSTRUCTIONS)
 
 # Resource endpoints
 
