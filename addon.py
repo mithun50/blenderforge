@@ -332,6 +332,71 @@ class BlenderForgeServer:
         }
         handlers.update(ai_handlers)
 
+        # Advanced Features handlers
+        advanced_handlers = {
+            # Modifier System
+            "add_modifier": self.add_modifier,
+            "configure_modifier": self.configure_modifier,
+            "apply_modifier": self.apply_modifier,
+            "boolean_operation": self.boolean_operation,
+            "create_array": self.create_array,
+            "add_bevel": self.add_bevel,
+            "mirror_object": self.mirror_object,
+            "subdivide_smooth": self.subdivide_smooth,
+            # Mesh Editing Operations
+            "extrude_faces": self.extrude_faces,
+            "inset_faces": self.inset_faces,
+            "loop_cut": self.loop_cut,
+            "merge_vertices": self.merge_vertices,
+            "separate_by_loose": self.separate_by_loose,
+            "join_objects": self.join_objects,
+            # Animation System
+            "insert_keyframe": self.insert_keyframe,
+            "set_animation_range": self.set_animation_range,
+            "create_turntable": self.create_turntable,
+            "add_shape_key": self.add_shape_key,
+            "animate_shape_key": self.animate_shape_key,
+            "animate_path": self.animate_path,
+            "bake_animation": self.bake_animation,
+            # Physics Simulation
+            "add_rigid_body": self.add_rigid_body,
+            "add_cloth_simulation": self.add_cloth_simulation,
+            "add_collision": self.add_collision,
+            "create_force_field": self.create_force_field,
+            "bake_physics": self.bake_physics,
+            "add_particle_system": self.add_particle_system,
+            # Camera & Rendering System
+            "create_camera": self.create_camera,
+            "set_active_camera": self.set_active_camera,
+            "configure_camera": self.configure_camera,
+            "camera_look_at": self.camera_look_at,
+            "set_render_settings": self.set_render_settings,
+            "render_image": self.render_image,
+            "render_animation": self.render_animation,
+            "setup_studio_render": self.setup_studio_render,
+            # Curves & Text System
+            "create_bezier_curve": self.create_bezier_curve,
+            "create_text_object": self.create_text_object,
+            "curve_to_mesh": self.curve_to_mesh,
+            "create_pipe": self.create_pipe,
+            # Constraints & Relationships
+            "add_constraint": self.add_constraint,
+            "create_empty": self.create_empty,
+            "parent_objects": self.parent_objects,
+            # Scene Organization
+            "create_collection": self.create_collection,
+            "move_to_collection": self.move_to_collection,
+            "set_collection_visibility": self.set_collection_visibility,
+            "duplicate_linked": self.duplicate_linked,
+            "purge_unused": self.purge_unused,
+            "save_blend": self.save_blend,
+            "export_scene": self.export_scene,
+            # Geometry Nodes / Procedural Generation
+            "scatter_on_surface": self.scatter_on_surface,
+            "create_procedural_terrain": self.create_procedural_terrain,
+        }
+        handlers.update(advanced_handlers)
+
         handler = handlers.get(cmd_type)
         if handler:
             try:
@@ -3572,6 +3637,1576 @@ class BlenderForgeServer:
                 "armature": armature_name,
                 "ik_targets_created": ik_targets,
                 "limb_type": limb_type,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # =============================================================================
+    # ADVANCED FEATURES - PHASE 1
+    # =============================================================================
+
+    # region Modifier System
+
+    def add_modifier(self, object_name, modifier_type, settings=None):
+        """Add a modifier to an object"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            # Validate modifier type
+            valid_types = [
+                'BOOLEAN', 'BEVEL', 'ARRAY', 'MIRROR', 'SUBSURF', 'SOLIDIFY',
+                'DECIMATE', 'REMESH', 'SMOOTH', 'TRIANGULATE', 'WIREFRAME',
+                'SKIN', 'SCREW', 'DISPLACE', 'SHRINKWRAP', 'SIMPLE_DEFORM',
+                'LATTICE', 'CURVE', 'ARMATURE', 'CAST', 'WAVE'
+            ]
+            modifier_type = modifier_type.upper()
+            if modifier_type not in valid_types:
+                return {"error": f"Invalid modifier type. Valid types: {', '.join(valid_types)}"}
+
+            # Add modifier
+            mod = obj.modifiers.new(name=modifier_type.title(), type=modifier_type)
+
+            # Apply settings if provided
+            if settings:
+                for key, value in settings.items():
+                    if hasattr(mod, key):
+                        setattr(mod, key, value)
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier_name": mod.name,
+                "modifier_type": modifier_type,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def configure_modifier(self, object_name, modifier_name, settings):
+        """Configure modifier parameters by name"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.get(modifier_name)
+            if not mod:
+                return {"error": f"Modifier '{modifier_name}' not found on '{object_name}'"}
+
+            applied_settings = {}
+            for key, value in settings.items():
+                if hasattr(mod, key):
+                    setattr(mod, key, value)
+                    applied_settings[key] = value
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": modifier_name,
+                "settings_applied": applied_settings,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def apply_modifier(self, object_name, modifier_name, remove_only=False):
+        """Apply or remove a modifier"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.get(modifier_name)
+            if not mod:
+                return {"error": f"Modifier '{modifier_name}' not found on '{object_name}'"}
+
+            bpy.context.view_layer.objects.active = obj
+
+            if remove_only:
+                obj.modifiers.remove(mod)
+                return {"success": True, "action": "removed", "modifier": modifier_name}
+            else:
+                bpy.ops.object.modifier_apply(modifier=modifier_name)
+                return {"success": True, "action": "applied", "modifier": modifier_name}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def boolean_operation(self, target, tool, operation="DIFFERENCE", apply=True):
+        """Perform boolean operation between two objects"""
+        try:
+            target_obj = bpy.data.objects.get(target)
+            tool_obj = bpy.data.objects.get(tool)
+
+            if not target_obj:
+                return {"error": f"Target object '{target}' not found"}
+            if not tool_obj:
+                return {"error": f"Tool object '{tool}' not found"}
+
+            operation = operation.upper()
+            if operation not in ['UNION', 'DIFFERENCE', 'INTERSECT']:
+                return {"error": "Operation must be UNION, DIFFERENCE, or INTERSECT"}
+
+            # Add boolean modifier
+            mod = target_obj.modifiers.new(name="Boolean", type='BOOLEAN')
+            mod.operation = operation
+            mod.object = tool_obj
+
+            result_verts = 0
+            if apply:
+                bpy.context.view_layer.objects.active = target_obj
+                bpy.ops.object.modifier_apply(modifier=mod.name)
+                tool_obj.hide_set(True)
+                result_verts = len(target_obj.data.vertices)
+
+            return {
+                "success": True,
+                "operation": operation,
+                "target": target,
+                "tool": tool,
+                "applied": apply,
+                "result_vertices": result_verts if apply else "modifier_pending",
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_array(self, object_name, count=3, offset=(1, 0, 0), use_relative=True):
+        """Create array modifier with count and offset"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.new(name="Array", type='ARRAY')
+            mod.count = count
+            mod.use_relative_offset = use_relative
+            mod.use_constant_offset = not use_relative
+
+            if use_relative:
+                mod.relative_offset_displace = offset
+            else:
+                mod.constant_offset_displace = offset
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": mod.name,
+                "count": count,
+                "offset": list(offset),
+                "use_relative": use_relative,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_bevel(self, object_name, width=0.1, segments=3, profile=0.5, limit_method="NONE"):
+        """Add bevel modifier with settings"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.new(name="Bevel", type='BEVEL')
+            mod.width = width
+            mod.segments = segments
+            mod.profile = profile
+            mod.limit_method = limit_method
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": mod.name,
+                "width": width,
+                "segments": segments,
+                "profile": profile,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def mirror_object(self, object_name, axis='X', use_bisect=False, merge_threshold=0.001):
+        """Mirror object across axis"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.new(name="Mirror", type='MIRROR')
+            mod.use_axis[0] = 'X' in axis.upper()
+            mod.use_axis[1] = 'Y' in axis.upper()
+            mod.use_axis[2] = 'Z' in axis.upper()
+            mod.use_bisect_axis[0] = use_bisect and 'X' in axis.upper()
+            mod.use_bisect_axis[1] = use_bisect and 'Y' in axis.upper()
+            mod.use_bisect_axis[2] = use_bisect and 'Z' in axis.upper()
+            mod.merge_threshold = merge_threshold
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": mod.name,
+                "axis": axis,
+                "use_bisect": use_bisect,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def subdivide_smooth(self, object_name, levels=2, render_levels=None):
+        """Add subdivision surface modifier"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            mod = obj.modifiers.new(name="Subdivision", type='SUBSURF')
+            mod.levels = levels
+            mod.render_levels = render_levels if render_levels is not None else levels
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": mod.name,
+                "viewport_levels": levels,
+                "render_levels": mod.render_levels,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Mesh Editing Operations
+
+    def extrude_faces(self, object_name, distance=1.0, face_indices=None):
+        """Extrude faces by distance"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            import bmesh
+            bm = bmesh.from_edit_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+
+            # Select faces
+            if face_indices:
+                for i in face_indices:
+                    if i < len(bm.faces):
+                        bm.faces[i].select = True
+            else:
+                # Select all faces
+                for f in bm.faces:
+                    f.select = True
+
+            bmesh.update_edit_mesh(obj.data)
+
+            # Extrude
+            bpy.ops.mesh.extrude_region_move(
+                TRANSFORM_OT_translate={"value": (0, 0, distance)}
+            )
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            return {
+                "success": True,
+                "object": object_name,
+                "distance": distance,
+                "faces_extruded": len(face_indices) if face_indices else "all",
+            }
+        except Exception as e:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            return {"error": str(e)}
+
+    def inset_faces(self, object_name, thickness=0.1, depth=0.0, face_indices=None):
+        """Inset selected faces"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='DESELECT')
+
+            import bmesh
+            bm = bmesh.from_edit_mesh(obj.data)
+            bm.faces.ensure_lookup_table()
+
+            if face_indices:
+                for i in face_indices:
+                    if i < len(bm.faces):
+                        bm.faces[i].select = True
+            else:
+                for f in bm.faces:
+                    f.select = True
+
+            bmesh.update_edit_mesh(obj.data)
+            bpy.ops.mesh.inset(thickness=thickness, depth=depth)
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            return {
+                "success": True,
+                "object": object_name,
+                "thickness": thickness,
+                "depth": depth,
+            }
+        except Exception as e:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            return {"error": str(e)}
+
+    def loop_cut(self, object_name, cuts=1, edge_index=0, smoothness=0):
+        """Add loop cuts to mesh"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+
+            bpy.ops.mesh.loopcut_slide(
+                MESH_OT_loopcut={
+                    "number_cuts": cuts,
+                    "smoothness": smoothness,
+                    "falloff": 'INVERSE_SQUARE',
+                    "edge_index": edge_index
+                }
+            )
+
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            return {
+                "success": True,
+                "object": object_name,
+                "cuts": cuts,
+                "smoothness": smoothness,
+            }
+        except Exception as e:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            return {"error": str(e)}
+
+    def merge_vertices(self, object_name, threshold=0.0001):
+        """Merge vertices by distance"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            verts_before = len(obj.data.vertices)
+
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.select_all(action='SELECT')
+            bpy.ops.mesh.remove_doubles(threshold=threshold)
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            verts_after = len(obj.data.vertices)
+
+            return {
+                "success": True,
+                "object": object_name,
+                "vertices_before": verts_before,
+                "vertices_after": verts_after,
+                "vertices_removed": verts_before - verts_after,
+            }
+        except Exception as e:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            return {"error": str(e)}
+
+    def separate_by_loose(self, object_name):
+        """Separate loose parts into individual objects"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+            bpy.ops.object.mode_set(mode='EDIT')
+            bpy.ops.mesh.separate(type='LOOSE')
+            bpy.ops.object.mode_set(mode='OBJECT')
+
+            new_objects = [o.name for o in bpy.context.selected_objects]
+
+            return {
+                "success": True,
+                "original": object_name,
+                "resulting_objects": new_objects,
+                "object_count": len(new_objects),
+            }
+        except Exception as e:
+            bpy.ops.object.mode_set(mode='OBJECT')
+            return {"error": str(e)}
+
+    def join_objects(self, object_names, result_name=None):
+        """Join multiple objects into one"""
+        try:
+            if len(object_names) < 2:
+                return {"error": "Need at least 2 objects to join"}
+
+            objects = [bpy.data.objects.get(name) for name in object_names]
+            if None in objects:
+                missing = [n for n, o in zip(object_names, objects) if o is None]
+                return {"error": f"Objects not found: {missing}"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            for obj in objects:
+                obj.select_set(True)
+
+            bpy.context.view_layer.objects.active = objects[0]
+            bpy.ops.object.join()
+
+            result = bpy.context.active_object
+            if result_name:
+                result.name = result_name
+
+            return {
+                "success": True,
+                "joined_objects": object_names,
+                "result_name": result.name,
+                "vertex_count": len(result.data.vertices),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Animation System
+
+    def insert_keyframe(self, object_name, data_path, frame, value=None):
+        """Insert keyframe for property at frame"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            # Map common property names
+            property_map = {
+                'location': 'location',
+                'rotation': 'rotation_euler',
+                'scale': 'scale',
+                'location_x': 'location',
+                'location_y': 'location',
+                'location_z': 'location',
+            }
+
+            actual_path = property_map.get(data_path, data_path)
+
+            # Set value if provided
+            if value is not None:
+                if actual_path == 'location' and isinstance(value, (list, tuple)):
+                    obj.location = value
+                elif actual_path == 'rotation_euler' and isinstance(value, (list, tuple)):
+                    obj.rotation_euler = value
+                elif actual_path == 'scale' and isinstance(value, (list, tuple)):
+                    obj.scale = value
+
+            # Insert keyframe
+            obj.keyframe_insert(data_path=actual_path, frame=frame)
+
+            return {
+                "success": True,
+                "object": object_name,
+                "data_path": actual_path,
+                "frame": frame,
+                "value": value,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def set_animation_range(self, start_frame, end_frame):
+        """Set animation start and end frames"""
+        try:
+            bpy.context.scene.frame_start = start_frame
+            bpy.context.scene.frame_end = end_frame
+
+            return {
+                "success": True,
+                "start_frame": start_frame,
+                "end_frame": end_frame,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_turntable(self, object_name, frames=120, axis='Z'):
+        """Create 360 degree turntable animation"""
+        try:
+            import math
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            axis_index = {'X': 0, 'Y': 1, 'Z': 2}.get(axis.upper(), 2)
+
+            # Set start keyframe
+            bpy.context.scene.frame_set(1)
+            rotation = list(obj.rotation_euler)
+            rotation[axis_index] = 0
+            obj.rotation_euler = rotation
+            obj.keyframe_insert(data_path="rotation_euler", frame=1)
+
+            # Set end keyframe
+            bpy.context.scene.frame_set(frames)
+            rotation[axis_index] = math.radians(360)
+            obj.rotation_euler = rotation
+            obj.keyframe_insert(data_path="rotation_euler", frame=frames)
+
+            # Set linear interpolation
+            if obj.animation_data and obj.animation_data.action:
+                for fc in obj.animation_data.action.fcurves:
+                    for kp in fc.keyframe_points:
+                        kp.interpolation = 'LINEAR'
+
+            bpy.context.scene.frame_start = 1
+            bpy.context.scene.frame_end = frames
+
+            return {
+                "success": True,
+                "object": object_name,
+                "frames": frames,
+                "axis": axis,
+                "rotation_degrees": 360,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_shape_key(self, object_name, shape_name="Key"):
+        """Add shape key to mesh"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.context.view_layer.objects.active = obj
+
+            # Add basis shape key if none exists
+            if not obj.data.shape_keys:
+                bpy.ops.object.shape_key_add(from_mix=False)
+
+            # Add new shape key
+            bpy.ops.object.shape_key_add(from_mix=False)
+            new_key = obj.data.shape_keys.key_blocks[-1]
+            new_key.name = shape_name
+
+            return {
+                "success": True,
+                "object": object_name,
+                "shape_key": new_key.name,
+                "total_shape_keys": len(obj.data.shape_keys.key_blocks),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def animate_shape_key(self, object_name, shape_key_name, keyframes):
+        """Animate shape key value over frames. keyframes: list of (frame, value) tuples"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            if not obj.data.shape_keys:
+                return {"error": "Object has no shape keys"}
+
+            shape_key = obj.data.shape_keys.key_blocks.get(shape_key_name)
+            if not shape_key:
+                return {"error": f"Shape key '{shape_key_name}' not found"}
+
+            for frame, value in keyframes:
+                shape_key.value = value
+                shape_key.keyframe_insert(data_path="value", frame=frame)
+
+            return {
+                "success": True,
+                "object": object_name,
+                "shape_key": shape_key_name,
+                "keyframes_set": len(keyframes),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def animate_path(self, object_name, curve_name, frames=100, follow=True):
+        """Animate object along curve path"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            curve = bpy.data.objects.get(curve_name)
+
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+            if not curve or curve.type != 'CURVE':
+                return {"error": f"Curve '{curve_name}' not found"}
+
+            # Add follow path constraint
+            constraint = obj.constraints.new('FOLLOW_PATH')
+            constraint.target = curve
+            constraint.use_curve_follow = follow
+            constraint.use_fixed_location = True
+            constraint.offset_factor = 0
+
+            # Animate offset
+            constraint.offset_factor = 0
+            constraint.keyframe_insert(data_path="offset_factor", frame=1)
+            constraint.offset_factor = 1
+            constraint.keyframe_insert(data_path="offset_factor", frame=frames)
+
+            bpy.context.scene.frame_start = 1
+            bpy.context.scene.frame_end = frames
+
+            return {
+                "success": True,
+                "object": object_name,
+                "curve": curve_name,
+                "frames": frames,
+                "follow_curve": follow,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def bake_animation(self, object_name, start_frame=None, end_frame=None):
+        """Bake animation (constraints/physics) to keyframes"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            start = start_frame or bpy.context.scene.frame_start
+            end = end_frame or bpy.context.scene.frame_end
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+
+            bpy.ops.nla.bake(
+                frame_start=start,
+                frame_end=end,
+                only_selected=True,
+                visual_keying=True,
+                clear_constraints=False,
+                bake_types={'OBJECT'}
+            )
+
+            return {
+                "success": True,
+                "object": object_name,
+                "start_frame": start,
+                "end_frame": end,
+                "frames_baked": end - start + 1,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Physics Simulation
+
+    def add_rigid_body(self, object_name, body_type="ACTIVE", mass=1.0, friction=0.5, bounciness=0.5):
+        """Add rigid body physics to object"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+
+            bpy.ops.rigidbody.object_add()
+
+            rb = obj.rigid_body
+            rb.type = body_type.upper()
+            rb.mass = mass
+            rb.friction = friction
+            rb.restitution = bounciness
+
+            return {
+                "success": True,
+                "object": object_name,
+                "body_type": body_type,
+                "mass": mass,
+                "friction": friction,
+                "bounciness": bounciness,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_cloth_simulation(self, object_name, preset="COTTON", collision_quality=5):
+        """Add cloth physics simulation"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj or obj.type != 'MESH':
+                return {"error": f"Mesh object '{object_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+
+            # Add cloth modifier
+            mod = obj.modifiers.new(name="Cloth", type='CLOTH')
+
+            # Preset configurations
+            presets = {
+                "COTTON": {"mass": 0.3, "stiffness": 15, "damping": 5},
+                "SILK": {"mass": 0.1, "stiffness": 5, "damping": 1},
+                "LEATHER": {"mass": 0.4, "stiffness": 80, "damping": 25},
+                "RUBBER": {"mass": 0.3, "stiffness": 25, "damping": 25},
+            }
+
+            preset_config = presets.get(preset.upper(), presets["COTTON"])
+            cloth = mod.settings
+            cloth.mass = preset_config["mass"]
+            cloth.tension_stiffness = preset_config["stiffness"]
+            cloth.compression_stiffness = preset_config["stiffness"]
+            cloth.tension_damping = preset_config["damping"]
+            cloth.compression_damping = preset_config["damping"]
+
+            mod.collision_settings.collision_quality = collision_quality
+
+            return {
+                "success": True,
+                "object": object_name,
+                "preset": preset,
+                "mass": cloth.mass,
+                "stiffness": cloth.tension_stiffness,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_collision(self, object_name):
+        """Add collision modifier for physics interactions"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+
+            mod = obj.modifiers.new(name="Collision", type='COLLISION')
+
+            return {
+                "success": True,
+                "object": object_name,
+                "modifier": mod.name,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_force_field(self, field_type="WIND", strength=1.0, location=(0, 0, 0)):
+        """Create force field (wind, vortex, turbulence, etc.)"""
+        try:
+            valid_types = ['WIND', 'VORTEX', 'TURBULENCE', 'FORCE', 'HARMONIC', 'CHARGE', 'MAGNET']
+            field_type = field_type.upper()
+            if field_type not in valid_types:
+                return {"error": f"Invalid field type. Valid types: {', '.join(valid_types)}"}
+
+            bpy.ops.object.effector_add(type=field_type, location=location)
+            field_obj = bpy.context.active_object
+            field_obj.field.strength = strength
+
+            return {
+                "success": True,
+                "field_type": field_type,
+                "object_name": field_obj.name,
+                "strength": strength,
+                "location": list(location),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def bake_physics(self, start_frame=1, end_frame=250):
+        """Bake physics simulation"""
+        try:
+            bpy.context.scene.frame_start = start_frame
+            bpy.context.scene.frame_end = end_frame
+
+            # Bake rigid body
+            if bpy.context.scene.rigidbody_world:
+                bpy.context.scene.rigidbody_world.point_cache.frame_start = start_frame
+                bpy.context.scene.rigidbody_world.point_cache.frame_end = end_frame
+                bpy.ops.ptcache.bake_all(bake=True)
+
+            return {
+                "success": True,
+                "start_frame": start_frame,
+                "end_frame": end_frame,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def add_particle_system(self, object_name, count=1000, lifetime=50, emit_from="FACE"):
+        """Add particle emitter system"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            # Add particle system modifier
+            mod = obj.modifiers.new(name="ParticleSystem", type='PARTICLE_SYSTEM')
+            ps = obj.particle_systems[mod.name]
+            settings = ps.settings
+
+            settings.count = count
+            settings.lifetime = lifetime
+            settings.emit_from = emit_from
+
+            return {
+                "success": True,
+                "object": object_name,
+                "particle_system": ps.name,
+                "count": count,
+                "lifetime": lifetime,
+                "emit_from": emit_from,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Camera & Rendering System
+
+    def create_camera(self, name="Camera", location=(0, -10, 5), focal_length=50):
+        """Create camera with settings"""
+        try:
+            bpy.ops.object.camera_add(location=location)
+            camera = bpy.context.active_object
+            camera.name = name
+            camera.data.lens = focal_length
+
+            # Point at origin by default
+            direction = mathutils.Vector((0, 0, 0)) - mathutils.Vector(location)
+            camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+            return {
+                "success": True,
+                "camera_name": camera.name,
+                "location": list(location),
+                "focal_length": focal_length,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def set_active_camera(self, camera_name):
+        """Set active camera for scene"""
+        try:
+            camera = bpy.data.objects.get(camera_name)
+            if not camera or camera.type != 'CAMERA':
+                return {"error": f"Camera '{camera_name}' not found"}
+
+            bpy.context.scene.camera = camera
+
+            return {
+                "success": True,
+                "active_camera": camera_name,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def configure_camera(self, camera_name, focal_length=None, dof_object=None, aperture=None, sensor_width=None):
+        """Configure camera settings with optional DOF"""
+        try:
+            camera = bpy.data.objects.get(camera_name)
+            if not camera or camera.type != 'CAMERA':
+                return {"error": f"Camera '{camera_name}' not found"}
+
+            cam_data = camera.data
+            settings_changed = []
+
+            if focal_length is not None:
+                cam_data.lens = focal_length
+                settings_changed.append(f"focal_length={focal_length}")
+
+            if sensor_width is not None:
+                cam_data.sensor_width = sensor_width
+                settings_changed.append(f"sensor_width={sensor_width}")
+
+            if dof_object is not None:
+                dof_obj = bpy.data.objects.get(dof_object)
+                if dof_obj:
+                    cam_data.dof.use_dof = True
+                    cam_data.dof.focus_object = dof_obj
+                    settings_changed.append(f"dof_object={dof_object}")
+
+            if aperture is not None:
+                cam_data.dof.use_dof = True
+                cam_data.dof.aperture_fstop = aperture
+                settings_changed.append(f"aperture={aperture}")
+
+            return {
+                "success": True,
+                "camera": camera_name,
+                "settings_changed": settings_changed,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def camera_look_at(self, camera_name, target):
+        """Point camera at target object or location"""
+        try:
+            camera = bpy.data.objects.get(camera_name)
+            if not camera or camera.type != 'CAMERA':
+                return {"error": f"Camera '{camera_name}' not found"}
+
+            if isinstance(target, str):
+                target_obj = bpy.data.objects.get(target)
+                if not target_obj:
+                    return {"error": f"Target object '{target}' not found"}
+                target_loc = target_obj.location
+            else:
+                target_loc = mathutils.Vector(target)
+
+            direction = target_loc - camera.location
+            camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+
+            return {
+                "success": True,
+                "camera": camera_name,
+                "looking_at": list(target_loc),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def set_render_settings(self, engine="CYCLES", samples=128, resolution=(1920, 1080), denoise=True):
+        """Configure render settings"""
+        try:
+            scene = bpy.context.scene
+
+            # Set render engine
+            engine = engine.upper()
+            if engine in ['CYCLES', 'BLENDER_EEVEE', 'BLENDER_EEVEE_NEXT', 'BLENDER_WORKBENCH']:
+                scene.render.engine = engine
+
+            # Resolution
+            scene.render.resolution_x = resolution[0]
+            scene.render.resolution_y = resolution[1]
+            scene.render.resolution_percentage = 100
+
+            # Samples
+            if engine == 'CYCLES':
+                scene.cycles.samples = samples
+                scene.cycles.use_denoising = denoise
+            elif 'EEVEE' in engine:
+                scene.eevee.taa_render_samples = samples
+
+            return {
+                "success": True,
+                "engine": engine,
+                "samples": samples,
+                "resolution": list(resolution),
+                "denoise": denoise,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def render_image(self, filepath, file_format="PNG"):
+        """Render current frame to file"""
+        try:
+            scene = bpy.context.scene
+
+            # Set output path
+            scene.render.filepath = filepath
+            scene.render.image_settings.file_format = file_format.upper()
+
+            # Render
+            bpy.ops.render.render(write_still=True)
+
+            return {
+                "success": True,
+                "filepath": filepath,
+                "format": file_format,
+                "resolution": [scene.render.resolution_x, scene.render.resolution_y],
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def render_animation(self, filepath, file_format="FFMPEG", start_frame=None, end_frame=None):
+        """Render animation to file"""
+        try:
+            scene = bpy.context.scene
+
+            if start_frame is not None:
+                scene.frame_start = start_frame
+            if end_frame is not None:
+                scene.frame_end = end_frame
+
+            scene.render.filepath = filepath
+
+            if file_format.upper() == "FFMPEG":
+                scene.render.image_settings.file_format = 'FFMPEG'
+                scene.render.ffmpeg.format = 'MPEG4'
+                scene.render.ffmpeg.codec = 'H264'
+            else:
+                scene.render.image_settings.file_format = file_format.upper()
+
+            bpy.ops.render.render(animation=True)
+
+            return {
+                "success": True,
+                "filepath": filepath,
+                "format": file_format,
+                "frame_range": [scene.frame_start, scene.frame_end],
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def setup_studio_render(self, background_color=(0.1, 0.1, 0.1)):
+        """One-click studio render setup with lighting and background"""
+        try:
+            scene = bpy.context.scene
+            changes = []
+
+            # Set world background
+            if not bpy.data.worlds:
+                bpy.data.worlds.new("World")
+            world = bpy.data.worlds[0]
+            world.use_nodes = True
+            bg_node = world.node_tree.nodes.get("Background")
+            if bg_node:
+                bg_node.inputs[0].default_value = (*background_color, 1.0)
+            scene.world = world
+            changes.append("Set background color")
+
+            # Add key light
+            bpy.ops.object.light_add(type='AREA', location=(4, -4, 5))
+            key = bpy.context.active_object
+            key.name = "Studio_Key"
+            key.data.energy = 1000
+            key.data.size = 3
+            key.rotation_euler = (1.0, 0.0, 0.8)
+            changes.append("Added key light")
+
+            # Add fill light
+            bpy.ops.object.light_add(type='AREA', location=(-4, -2, 4))
+            fill = bpy.context.active_object
+            fill.name = "Studio_Fill"
+            fill.data.energy = 500
+            fill.data.size = 2
+            fill.rotation_euler = (1.0, 0.0, -0.8)
+            changes.append("Added fill light")
+
+            # Add rim light
+            bpy.ops.object.light_add(type='AREA', location=(0, 4, 3))
+            rim = bpy.context.active_object
+            rim.name = "Studio_Rim"
+            rim.data.energy = 800
+            rim.data.size = 2
+            rim.rotation_euler = (0.5, 3.14, 0.0)
+            changes.append("Added rim light")
+
+            # Add camera
+            bpy.ops.object.camera_add(location=(7, -7, 5))
+            camera = bpy.context.active_object
+            camera.name = "Studio_Camera"
+            camera.data.lens = 85
+            direction = mathutils.Vector((0, 0, 0)) - camera.location
+            camera.rotation_euler = direction.to_track_quat('-Z', 'Y').to_euler()
+            scene.camera = camera
+            changes.append("Added and set camera")
+
+            # Render settings
+            scene.render.engine = 'CYCLES'
+            scene.cycles.samples = 128
+            scene.cycles.use_denoising = True
+            changes.append("Set render settings")
+
+            return {
+                "success": True,
+                "changes": changes,
+                "camera": camera.name,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Curves & Text System
+
+    def create_bezier_curve(self, points, name="Curve", resolution=12, closed=False):
+        """Create bezier curve from points list"""
+        try:
+            # Create curve data
+            curve_data = bpy.data.curves.new(name, 'CURVE')
+            curve_data.dimensions = '3D'
+            curve_data.resolution_u = resolution
+
+            # Create spline
+            spline = curve_data.splines.new('BEZIER')
+            spline.bezier_points.add(len(points) - 1)
+            spline.use_cyclic_u = closed
+
+            for i, point in enumerate(points):
+                bp = spline.bezier_points[i]
+                bp.co = point
+                bp.handle_left_type = 'AUTO'
+                bp.handle_right_type = 'AUTO'
+
+            # Create object
+            curve_obj = bpy.data.objects.new(name, curve_data)
+            bpy.context.collection.objects.link(curve_obj)
+
+            return {
+                "success": True,
+                "curve_name": curve_obj.name,
+                "points": len(points),
+                "closed": closed,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_text_object(self, text, name="Text", size=1, extrude=0, bevel_depth=0, font=None):
+        """Create 3D text object"""
+        try:
+            # Create text curve data
+            text_data = bpy.data.curves.new(name, 'FONT')
+            text_data.body = text
+            text_data.size = size
+            text_data.extrude = extrude
+            text_data.bevel_depth = bevel_depth
+
+            if font and font in bpy.data.fonts:
+                text_data.font = bpy.data.fonts[font]
+
+            # Create object
+            text_obj = bpy.data.objects.new(name, text_data)
+            bpy.context.collection.objects.link(text_obj)
+            bpy.context.view_layer.objects.active = text_obj
+
+            return {
+                "success": True,
+                "text_name": text_obj.name,
+                "text_content": text,
+                "size": size,
+                "extrude": extrude,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def curve_to_mesh(self, curve_name, apply_modifiers=True):
+        """Convert curve to mesh"""
+        try:
+            curve = bpy.data.objects.get(curve_name)
+            if not curve or curve.type != 'CURVE':
+                return {"error": f"Curve '{curve_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            curve.select_set(True)
+            bpy.context.view_layer.objects.active = curve
+
+            bpy.ops.object.convert(target='MESH')
+
+            return {
+                "success": True,
+                "object_name": curve.name,
+                "vertex_count": len(curve.data.vertices) if curve.type == 'MESH' else 0,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_pipe(self, curve_name, radius=0.1, resolution=8):
+        """Create pipe along curve"""
+        try:
+            curve = bpy.data.objects.get(curve_name)
+            if not curve or curve.type != 'CURVE':
+                return {"error": f"Curve '{curve_name}' not found"}
+
+            curve_data = curve.data
+            curve_data.bevel_depth = radius
+            curve_data.bevel_resolution = resolution
+            curve_data.fill_mode = 'FULL'
+
+            return {
+                "success": True,
+                "curve": curve_name,
+                "radius": radius,
+                "resolution": resolution,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Constraints & Relationships
+
+    def add_constraint(self, object_name, constraint_type, target=None, settings=None):
+        """Add constraint to object"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            valid_constraints = [
+                'COPY_LOCATION', 'COPY_ROTATION', 'COPY_SCALE', 'COPY_TRANSFORMS',
+                'TRACK_TO', 'DAMPED_TRACK', 'LOCKED_TRACK',
+                'LIMIT_LOCATION', 'LIMIT_ROTATION', 'LIMIT_SCALE',
+                'CHILD_OF', 'FLOOR', 'FOLLOW_PATH', 'PIVOT', 'SHRINKWRAP'
+            ]
+
+            constraint_type = constraint_type.upper()
+            if constraint_type not in valid_constraints:
+                return {"error": f"Invalid constraint type. Valid: {', '.join(valid_constraints)}"}
+
+            constraint = obj.constraints.new(constraint_type)
+
+            if target:
+                target_obj = bpy.data.objects.get(target)
+                if target_obj and hasattr(constraint, 'target'):
+                    constraint.target = target_obj
+
+            if settings:
+                for key, value in settings.items():
+                    if hasattr(constraint, key):
+                        setattr(constraint, key, value)
+
+            return {
+                "success": True,
+                "object": object_name,
+                "constraint": constraint.name,
+                "constraint_type": constraint_type,
+                "target": target,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_empty(self, name="Empty", empty_type="PLAIN_AXES", location=(0, 0, 0), size=1):
+        """Create empty object for control"""
+        try:
+            bpy.ops.object.empty_add(type=empty_type, location=location)
+            empty = bpy.context.active_object
+            empty.name = name
+            empty.empty_display_size = size
+
+            return {
+                "success": True,
+                "empty_name": empty.name,
+                "type": empty_type,
+                "location": list(location),
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def parent_objects(self, child_name, parent_name, keep_transform=True):
+        """Parent one object to another"""
+        try:
+            child = bpy.data.objects.get(child_name)
+            parent = bpy.data.objects.get(parent_name)
+
+            if not child:
+                return {"error": f"Child object '{child_name}' not found"}
+            if not parent:
+                return {"error": f"Parent object '{parent_name}' not found"}
+
+            if keep_transform:
+                child.parent = parent
+                child.matrix_parent_inverse = parent.matrix_world.inverted()
+            else:
+                child.parent = parent
+
+            return {
+                "success": True,
+                "child": child_name,
+                "parent": parent_name,
+                "keep_transform": keep_transform,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Scene Organization
+
+    def create_collection(self, name, parent=None, color_tag='NONE'):
+        """Create new collection"""
+        try:
+            new_collection = bpy.data.collections.new(name)
+
+            if parent:
+                parent_coll = bpy.data.collections.get(parent)
+                if parent_coll:
+                    parent_coll.children.link(new_collection)
+                else:
+                    bpy.context.scene.collection.children.link(new_collection)
+            else:
+                bpy.context.scene.collection.children.link(new_collection)
+
+            new_collection.color_tag = color_tag
+
+            return {
+                "success": True,
+                "collection_name": new_collection.name,
+                "parent": parent,
+                "color_tag": color_tag,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def move_to_collection(self, object_names, collection_name):
+        """Move objects to collection"""
+        try:
+            target_coll = bpy.data.collections.get(collection_name)
+            if not target_coll:
+                return {"error": f"Collection '{collection_name}' not found"}
+
+            moved = []
+            for obj_name in object_names:
+                obj = bpy.data.objects.get(obj_name)
+                if obj:
+                    # Remove from all collections
+                    for coll in obj.users_collection:
+                        coll.objects.unlink(obj)
+                    # Add to target collection
+                    target_coll.objects.link(obj)
+                    moved.append(obj_name)
+
+            return {
+                "success": True,
+                "collection": collection_name,
+                "objects_moved": moved,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def set_collection_visibility(self, collection_name, visible=True, render_visible=True):
+        """Set collection visibility"""
+        try:
+            collection = bpy.data.collections.get(collection_name)
+            if not collection:
+                return {"error": f"Collection '{collection_name}' not found"}
+
+            # Set viewport visibility
+            layer_coll = bpy.context.view_layer.layer_collection.children.get(collection_name)
+            if layer_coll:
+                layer_coll.exclude = not visible
+
+            # Set render visibility
+            collection.hide_render = not render_visible
+
+            return {
+                "success": True,
+                "collection": collection_name,
+                "visible": visible,
+                "render_visible": render_visible,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def duplicate_linked(self, object_name, new_name=None):
+        """Create linked duplicate of object"""
+        try:
+            obj = bpy.data.objects.get(object_name)
+            if not obj:
+                return {"error": f"Object '{object_name}' not found"}
+
+            bpy.ops.object.select_all(action='DESELECT')
+            obj.select_set(True)
+            bpy.context.view_layer.objects.active = obj
+
+            bpy.ops.object.duplicate(linked=True)
+            new_obj = bpy.context.active_object
+
+            if new_name:
+                new_obj.name = new_name
+
+            return {
+                "success": True,
+                "original": object_name,
+                "duplicate": new_obj.name,
+                "linked": True,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def purge_unused(self):
+        """Purge unused data blocks"""
+        try:
+            # Count before
+            before = {
+                "materials": len(bpy.data.materials),
+                "textures": len(bpy.data.textures),
+                "images": len(bpy.data.images),
+                "meshes": len(bpy.data.meshes),
+            }
+
+            bpy.ops.outliner.orphans_purge(do_recursive=True)
+
+            # Count after
+            after = {
+                "materials": len(bpy.data.materials),
+                "textures": len(bpy.data.textures),
+                "images": len(bpy.data.images),
+                "meshes": len(bpy.data.meshes),
+            }
+
+            return {
+                "success": True,
+                "before": before,
+                "after": after,
+                "removed": {k: before[k] - after[k] for k in before},
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def save_blend(self, filepath):
+        """Save .blend file"""
+        try:
+            bpy.ops.wm.save_as_mainfile(filepath=filepath)
+            return {
+                "success": True,
+                "filepath": filepath,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def export_scene(self, filepath, export_format="GLTF", selected_only=False, apply_modifiers=True):
+        """Export scene to format (FBX, glTF, OBJ)"""
+        try:
+            export_format = export_format.upper()
+
+            if export_format in ['GLTF', 'GLB']:
+                bpy.ops.export_scene.gltf(
+                    filepath=filepath,
+                    use_selection=selected_only,
+                    export_apply=apply_modifiers,
+                    export_format='GLB' if export_format == 'GLB' else 'GLTF_SEPARATE'
+                )
+            elif export_format == 'FBX':
+                bpy.ops.export_scene.fbx(
+                    filepath=filepath,
+                    use_selection=selected_only,
+                    apply_scale_options='FBX_SCALE_ALL',
+                    use_mesh_modifiers=apply_modifiers
+                )
+            elif export_format == 'OBJ':
+                bpy.ops.wm.obj_export(
+                    filepath=filepath,
+                    export_selected_objects=selected_only,
+                    apply_modifiers=apply_modifiers
+                )
+            else:
+                return {"error": f"Unsupported format: {export_format}. Use GLTF, GLB, FBX, or OBJ"}
+
+            return {
+                "success": True,
+                "filepath": filepath,
+                "format": export_format,
+                "selected_only": selected_only,
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    # endregion
+
+    # region Geometry Nodes / Procedural
+
+    def scatter_on_surface(self, surface_object, instance_object, density=10, seed=0, scale_min=0.8, scale_max=1.2, align_to_normal=True):
+        """Scatter instances on mesh surface using geometry nodes"""
+        try:
+            surface = bpy.data.objects.get(surface_object)
+            instance = bpy.data.objects.get(instance_object)
+
+            if not surface or surface.type != 'MESH':
+                return {"error": f"Surface mesh '{surface_object}' not found"}
+            if not instance:
+                return {"error": f"Instance object '{instance_object}' not found"}
+
+            # Add geometry nodes modifier
+            mod = surface.modifiers.new(name="ScatterInstances", type='NODES')
+
+            # Create geometry nodes tree
+            node_tree = bpy.data.node_groups.new("ScatterNodes", 'GeometryNodeTree')
+            mod.node_group = node_tree
+
+            nodes = node_tree.nodes
+            links = node_tree.links
+
+            # Create input/output
+            group_input = nodes.new('NodeGroupInput')
+            group_output = nodes.new('NodeGroupOutput')
+            group_input.location = (-800, 0)
+            group_output.location = (400, 0)
+
+            # Add geometry socket to group
+            node_tree.interface.new_socket(name="Geometry", in_out='INPUT', socket_type='NodeSocketGeometry')
+            node_tree.interface.new_socket(name="Geometry", in_out='OUTPUT', socket_type='NodeSocketGeometry')
+
+            # Distribute points
+            distribute = nodes.new('GeometryNodeDistributePointsOnFaces')
+            distribute.location = (-400, 0)
+            distribute.distribute_method = 'POISSON'
+            distribute.inputs['Density'].default_value = density
+            distribute.inputs['Seed'].default_value = seed
+
+            # Instance on points
+            instance_node = nodes.new('GeometryNodeInstanceOnPoints')
+            instance_node.location = (0, 0)
+
+            # Object info for instance
+            obj_info = nodes.new('GeometryNodeObjectInfo')
+            obj_info.location = (-200, -200)
+            obj_info.inputs['Object'].default_value = instance
+
+            # Random scale
+            random_val = nodes.new('FunctionNodeRandomValue')
+            random_val.location = (-200, -400)
+            random_val.data_type = 'FLOAT_VECTOR'
+            random_val.inputs[0].default_value = (scale_min, scale_min, scale_min)
+            random_val.inputs[1].default_value = (scale_max, scale_max, scale_max)
+
+            # Join geometry
+            join = nodes.new('GeometryNodeJoinGeometry')
+            join.location = (200, 0)
+
+            # Link nodes
+            links.new(group_input.outputs[0], distribute.inputs['Mesh'])
+            links.new(distribute.outputs['Points'], instance_node.inputs['Points'])
+            links.new(obj_info.outputs['Geometry'], instance_node.inputs['Instance'])
+            links.new(random_val.outputs[1], instance_node.inputs['Scale'])
+
+            if align_to_normal:
+                links.new(distribute.outputs['Rotation'], instance_node.inputs['Rotation'])
+
+            links.new(group_input.outputs[0], join.inputs['Geometry'])
+            links.new(instance_node.outputs['Instances'], join.inputs['Geometry'])
+            links.new(join.outputs[0], group_output.inputs[0])
+
+            return {
+                "success": True,
+                "surface": surface_object,
+                "instance": instance_object,
+                "density": density,
+                "seed": seed,
+                "scale_range": [scale_min, scale_max],
+            }
+        except Exception as e:
+            return {"error": str(e)}
+
+    def create_procedural_terrain(self, name="Terrain", size=10, resolution=50, height_scale=2, noise_scale=1):
+        """Generate procedural terrain mesh"""
+        try:
+            # Create grid
+            bpy.ops.mesh.primitive_grid_add(
+                x_subdivisions=resolution,
+                y_subdivisions=resolution,
+                size=size
+            )
+            terrain = bpy.context.active_object
+            terrain.name = name
+
+            # Add displace modifier with texture
+            tex = bpy.data.textures.new(f"{name}_Noise", type='CLOUDS')
+            tex.noise_scale = noise_scale
+
+            mod = terrain.modifiers.new(name="Displace", type='DISPLACE')
+            mod.texture = tex
+            mod.strength = height_scale
+            mod.mid_level = 0.5
+
+            return {
+                "success": True,
+                "terrain_name": terrain.name,
+                "size": size,
+                "resolution": resolution,
+                "height_scale": height_scale,
             }
         except Exception as e:
             return {"error": str(e)}
