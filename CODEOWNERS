@@ -1,0 +1,22 @@
+# BlenderForge Code Owners
+# These owners will be requested for review when someone opens a pull request.
+
+# Default owners for everything in the repo
+* @mithun50 @nevil06 @lekhanpro @appukannadiga @NextGenXplorer
+
+# Core server code
+/src/blenderforge/ @mithun50 @nevil06 @NextGenXplorer
+
+# Blender addon
+/addon.py @mithun50 @lekhanpro @appukannadiga
+
+# Documentation
+/docs/ @mithun50 @nevil06 @NextGenXplorer
+/README.md @mithun50 @NextGenXplorer
+
+# Tests
+/tests/ @mithun50 @nevil06 @lekhanpro
+
+# Configuration and build
+/pyproject.toml @mithun50 @NextGenXplorer
+/.github/ @mithun50 @NextGenXplorer

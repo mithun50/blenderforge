@@ -697,6 +697,818 @@ Add Inverse Kinematics constraints for animation.
 
 ---
 
+## Modifier System
+
+Advanced modeling tools using Blender's non-destructive modifier stack.
+
+### add_modifier
+
+Add a modifier to an object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object to modify |
+| `modifier_type` | string | Yes | Type: BOOLEAN, BEVEL, ARRAY, MIRROR, SUBSURF, SOLIDIFY, DECIMATE, REMESH, SMOOTH, etc. |
+| `settings` | string | No | JSON string of modifier settings |
+
+**Returns**:
+```json
+{
+  "success": true,
+  "object": "Cube",
+  "modifier_name": "Bevel",
+  "modifier_type": "BEVEL"
+}
+```
+
+**Example Usage**:
+```
+"Add a bevel modifier to the Cube"
+"Apply a mirror modifier with X axis to my mesh"
+```
+
+---
+
+### configure_modifier
+
+Configure an existing modifier's settings.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `modifier_name` | string | Yes | Name of the modifier |
+| `settings` | string | Yes | JSON string of settings |
+
+---
+
+### apply_modifier
+
+Apply or remove a modifier from an object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `modifier_name` | string | Yes | Name of the modifier |
+| `remove_only` | boolean | No | If true, remove without applying (default: false) |
+
+---
+
+### boolean_operation
+
+Perform boolean operations between two objects.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `target_object` | string | Yes | Object to modify |
+| `tool_object` | string | Yes | Object to use as tool |
+| `operation` | string | No | UNION, DIFFERENCE, INTERSECT (default: DIFFERENCE) |
+
+**Returns**:
+```json
+{
+  "success": true,
+  "operation": "DIFFERENCE",
+  "target": "Cube",
+  "tool": "Sphere",
+  "result_vertices": 156
+}
+```
+
+**Example Usage**:
+```
+"Cut a hole in the Cube using the Cylinder"
+"Combine these two meshes using union"
+```
+
+---
+
+### create_array
+
+Create an array of objects using the array modifier.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `count` | integer | No | Number of copies (default: 3) |
+| `offset_x/y/z` | float | No | Offset between copies |
+| `use_relative_offset` | boolean | No | Use relative offset (default: true) |
+
+**Example Usage**:
+```
+"Create an array of 10 cubes along the X axis"
+"Duplicate this chair 5 times with 2 meter spacing"
+```
+
+---
+
+### add_bevel
+
+Add bevel modifier for edge smoothing.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `width` | float | No | Bevel width (default: 0.1) |
+| `segments` | integer | No | Number of segments (default: 3) |
+| `profile` | float | No | Profile shape 0-1 (default: 0.5) |
+| `limit_method` | string | No | NONE, ANGLE, WEIGHT, VGROUP |
+
+---
+
+### mirror_object
+
+Add mirror modifier for symmetry.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `axis_x/y/z` | boolean | No | Mirror axes (default: X only) |
+| `use_clip` | boolean | No | Clip at mirror plane (default: true) |
+| `merge_threshold` | float | No | Merge distance (default: 0.001) |
+
+---
+
+### subdivide_smooth
+
+Add subdivision surface for smooth geometry.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `levels` | integer | No | Viewport levels (default: 2) |
+| `render_levels` | integer | No | Render levels (default: 3) |
+| `use_creases` | boolean | No | Use edge creases (default: true) |
+
+---
+
+## Mesh Editing Operations
+
+Direct mesh manipulation tools for precise modeling.
+
+### extrude_faces
+
+Extrude selected faces of a mesh.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh object |
+| `face_indices` | string | Yes | JSON array of face indices, e.g., "[0, 1, 2]" |
+| `distance` | float | Yes | Extrusion distance |
+| `direction` | string | No | NORMAL, X, Y, Z, or "[x,y,z]" |
+
+**Returns**:
+```json
+{
+  "success": true,
+  "faces_extruded": 3,
+  "new_vertices": 12
+}
+```
+
+---
+
+### inset_faces
+
+Inset selected faces.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh object |
+| `face_indices` | string | Yes | JSON array of face indices |
+| `thickness` | float | No | Inset thickness (default: 0.1) |
+| `depth` | float | No | Inset depth (default: 0.0) |
+
+---
+
+### loop_cut
+
+Add loop cuts to a mesh.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh object |
+| `edge_index` | integer | Yes | Index of edge to cut through |
+| `cuts` | integer | No | Number of cuts (default: 1) |
+| `smoothness` | float | No | Smoothness (default: 0.0) |
+
+---
+
+### merge_vertices
+
+Merge vertices by distance.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh object |
+| `threshold` | float | No | Merge distance (default: 0.0001) |
+| `vertex_indices` | string | No | Optional JSON array of vertex indices |
+
+---
+
+### separate_by_loose
+
+Separate a mesh into multiple objects by loose parts.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh to separate |
+
+---
+
+### join_objects
+
+Join multiple objects into one.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_names` | string | Yes | JSON array of names, e.g., '["Cube", "Sphere"]' |
+
+---
+
+## Animation System
+
+Keyframe animation and motion tools.
+
+### insert_keyframe
+
+Insert a keyframe for an object property.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `data_path` | string | Yes | Property: location, rotation_euler, scale |
+| `frame` | integer | Yes | Frame number |
+| `value` | string | No | Optional JSON value, e.g., "[1.0, 2.0, 3.0]" |
+
+**Example Usage**:
+```
+"Set a keyframe for the cube's location at frame 1"
+"Animate the sphere to move from 0 to 5 on Z axis"
+```
+
+---
+
+### set_animation_range
+
+Set the animation frame range and FPS.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `start_frame` | integer | No | Start frame (default: 1) |
+| `end_frame` | integer | No | End frame (default: 250) |
+| `fps` | integer | No | Frames per second (default: 24) |
+
+---
+
+### create_turntable
+
+Create a 360-degree turntable animation.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of object to rotate |
+| `frames` | integer | No | Duration in frames (default: 120) |
+| `axis` | string | No | Rotation axis X, Y, Z (default: Z) |
+
+**Example Usage**:
+```
+"Create a turntable animation for the product"
+"Make the car rotate 360 degrees over 5 seconds"
+```
+
+---
+
+### add_shape_key
+
+Add a shape key to a mesh object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh |
+| `name` | string | No | Shape key name (default: "Key") |
+| `from_mix` | boolean | No | Create from current mix (default: false) |
+
+---
+
+### animate_shape_key
+
+Animate a shape key's value over time.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh |
+| `shape_key_name` | string | Yes | Name of the shape key |
+| `keyframes` | string | Yes | JSON array of [frame, value] pairs |
+
+---
+
+### animate_path
+
+Animate an object along a curve path.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of object to animate |
+| `curve_name` | string | Yes | Name of curve to follow |
+| `frames` | integer | No | Duration in frames (default: 100) |
+| `follow_curve` | boolean | No | Align rotation to curve (default: true) |
+
+---
+
+### bake_animation
+
+Bake physics/constraints to keyframes.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `start_frame` | integer | No | Start frame (default: 1) |
+| `end_frame` | integer | No | End frame (default: 250) |
+| `step` | integer | No | Frame step (default: 1) |
+| `bake_types` | string | No | JSON array: '["LOCATION", "ROTATION", "SCALE"]' |
+
+---
+
+## Physics Simulation
+
+Dynamic simulation tools for realistic motion.
+
+### add_rigid_body
+
+Add rigid body physics to an object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `body_type` | string | No | ACTIVE or PASSIVE (default: ACTIVE) |
+| `mass` | float | No | Mass in kg (default: 1.0) |
+| `friction` | float | No | Friction 0-1 (default: 0.5) |
+| `bounciness` | float | No | Bounce 0-1 (default: 0.0) |
+
+**Example Usage**:
+```
+"Make this ball fall with physics"
+"Set the floor as a passive rigid body collider"
+```
+
+---
+
+### add_cloth_simulation
+
+Add cloth simulation to a mesh.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the mesh |
+| `preset` | string | No | COTTON, DENIM, LEATHER, RUBBER, SILK |
+| `collision_objects` | string | No | JSON array of collision object names |
+
+---
+
+### add_collision
+
+Add collision physics for cloth/soft body.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of the object |
+| `damping` | float | No | Damping (default: 0.1) |
+| `thickness` | float | No | Thickness (default: 0.02) |
+
+---
+
+### create_force_field
+
+Create a force field for physics simulations.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `field_type` | string | Yes | WIND, VORTEX, TURBULENCE, FORCE, MAGNET |
+| `strength` | float | No | Field strength (default: 10.0) |
+| `location_x/y/z` | float | No | Field position |
+
+---
+
+### bake_physics
+
+Bake all physics simulations in the scene.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `start_frame` | integer | No | Start frame (default: 1) |
+| `end_frame` | integer | No | End frame (default: 250) |
+
+---
+
+### add_particle_system
+
+Add a particle emitter to an object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Name of emitter |
+| `count` | integer | No | Number of particles (default: 1000) |
+| `lifetime` | integer | No | Lifetime in frames (default: 50) |
+| `emit_from` | string | No | FACE, VERT, VOLUME |
+| `render_type` | string | No | NONE, HALO, PATH, OBJECT, COLLECTION |
+
+---
+
+## Camera & Rendering System
+
+Camera control and render output tools.
+
+### create_camera
+
+Create a new camera in the scene.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | No | Camera name (default: "Camera") |
+| `location_x/y/z` | float | No | Camera position |
+| `focal_length` | float | No | Focal length in mm (default: 50.0) |
+
+---
+
+### set_active_camera
+
+Set the active camera for rendering.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `camera_name` | string | Yes | Name of camera to activate |
+
+---
+
+### configure_camera
+
+Configure camera settings including depth of field.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `camera_name` | string | Yes | Name of the camera |
+| `focal_length` | float | No | Focal length in mm |
+| `dof_focus_object` | string | No | Object for DOF focus |
+| `aperture` | float | No | F-stop value |
+| `sensor_width` | float | No | Sensor width in mm |
+
+---
+
+### camera_look_at
+
+Point a camera at an object or location.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `camera_name` | string | Yes | Name of the camera |
+| `target_object` | string | No | Object to look at |
+| `target_point` | string | No | JSON point, e.g., "[0, 0, 0]" |
+
+---
+
+### set_render_settings
+
+Configure render engine and settings.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `engine` | string | No | CYCLES, BLENDER_EEVEE, BLENDER_WORKBENCH |
+| `samples` | integer | No | Render samples (default: 128) |
+| `resolution_x/y` | integer | No | Output resolution |
+| `denoise` | boolean | No | Enable denoising (default: true) |
+| `use_gpu` | boolean | No | Use GPU rendering (default: true) |
+
+**Example Usage**:
+```
+"Set render resolution to 4K"
+"Switch to Cycles with 256 samples"
+```
+
+---
+
+### render_image
+
+Render the current frame to a file.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filepath` | string | Yes | Output file path |
+| `format` | string | No | PNG, JPEG, EXR, TIFF (default: PNG) |
+
+---
+
+### render_animation
+
+Render animation sequence.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `output_path` | string | Yes | Output directory/filename |
+| `format` | string | No | PNG, JPEG, EXR, FFMPEG |
+| `start_frame` | integer | No | Start frame |
+| `end_frame` | integer | No | End frame |
+
+---
+
+### setup_studio_render
+
+Set up professional studio lighting.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `target_object` | string | No | Object to focus on |
+| `style` | string | No | PRODUCT, PORTRAIT, DRAMATIC, SOFT |
+| `background_color` | string | No | JSON RGB, e.g., "[1.0, 1.0, 1.0]" |
+
+---
+
+## Curves & Text System
+
+Path and typography tools.
+
+### create_bezier_curve
+
+Create a bezier curve from control points.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `points` | string | Yes | JSON array of points, e.g., "[[0,0,0], [1,0,1]]" |
+| `name` | string | No | Curve name (default: "Curve") |
+| `resolution` | integer | No | Resolution (default: 12) |
+| `closed` | boolean | No | Close loop (default: false) |
+
+---
+
+### create_text_object
+
+Create a 3D text object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `text` | string | Yes | The text content |
+| `name` | string | No | Object name (default: "Text") |
+| `size` | float | No | Text size (default: 1.0) |
+| `extrude` | float | No | Extrusion depth (default: 0.0) |
+| `bevel_depth` | float | No | Bevel depth (default: 0.0) |
+| `font` | string | No | Font file path |
+
+**Example Usage**:
+```
+"Create 3D text saying 'Hello World'"
+"Add extruded text with a bevel"
+```
+
+---
+
+### curve_to_mesh
+
+Convert a curve object to a mesh.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `curve_name` | string | Yes | Name of curve to convert |
+
+---
+
+### create_pipe
+
+Create a pipe/tube mesh along a curve.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `curve_name` | string | Yes | Name of curve to follow |
+| `radius` | float | No | Pipe radius (default: 0.1) |
+| `resolution` | integer | No | Circular resolution (default: 8) |
+| `fill_caps` | boolean | No | Cap the ends (default: true) |
+
+---
+
+## Constraints & Relationships
+
+Object relationship and control tools.
+
+### add_constraint
+
+Add a constraint to an object.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Object to constrain |
+| `constraint_type` | string | Yes | COPY_LOCATION, COPY_ROTATION, TRACK_TO, etc. |
+| `target_object` | string | No | Target object |
+| `settings` | string | No | JSON string of settings |
+
+---
+
+### create_empty
+
+Create an empty object for use as control or parent.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | No | Empty name (default: "Empty") |
+| `empty_type` | string | No | PLAIN_AXES, ARROWS, CIRCLE, CUBE, SPHERE |
+| `location_x/y/z` | float | No | Position |
+| `size` | float | No | Display size (default: 1.0) |
+
+---
+
+### parent_objects
+
+Set parent-child relationships.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `child_names` | string | Yes | JSON array of child names |
+| `parent_name` | string | Yes | Name of parent |
+| `keep_transform` | boolean | No | Maintain world transforms (default: true) |
+
+---
+
+## Scene Organization
+
+Project management and export tools.
+
+### create_collection
+
+Create a new collection for organizing objects.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | Yes | Collection name |
+| `parent_collection` | string | No | Parent collection name |
+| `color_tag` | string | No | NONE, COLOR_01 through COLOR_08 |
+
+---
+
+### move_to_collection
+
+Move objects to a collection.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_names` | string | Yes | JSON array of object names |
+| `collection_name` | string | Yes | Target collection |
+
+---
+
+### set_collection_visibility
+
+Set collection visibility.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `collection_name` | string | Yes | Collection name |
+| `visible` | boolean | No | Viewport visibility (default: true) |
+| `render_visible` | boolean | No | Render visibility (default: true) |
+
+---
+
+### duplicate_linked
+
+Create a linked duplicate sharing mesh data.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `object_name` | string | Yes | Object to duplicate |
+| `new_name` | string | No | Name for new object |
+
+---
+
+### purge_unused
+
+Remove all unused data blocks (orphan data).
+
+**Parameters**: None
+
+---
+
+### save_blend
+
+Save the current scene as a .blend file.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filepath` | string | Yes | Output file path |
+| `compress` | boolean | No | Compress file (default: true) |
+
+---
+
+### export_scene
+
+Export scene to external format.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `filepath` | string | Yes | Output file path |
+| `format` | string | No | GLTF, GLB, FBX, OBJ, STL |
+| `selected_only` | boolean | No | Export selected only (default: false) |
+| `apply_modifiers` | boolean | No | Apply modifiers (default: true) |
+
+**Example Usage**:
+```
+"Export my scene as a GLB file"
+"Save the selected objects as FBX"
+```
+
+---
+
+## Procedural Generation
+
+Geometry nodes and procedural content tools.
+
+### scatter_on_surface
+
+Scatter instances on a surface using geometry nodes.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `surface_object` | string | Yes | Name of surface mesh |
+| `instance_object` | string | Yes | Object to scatter |
+| `density` | float | No | Instances per sq unit (default: 10.0) |
+| `seed` | integer | No | Random seed (default: 0) |
+| `scale_min/max` | float | No | Scale variation (default: 0.8-1.2) |
+| `align_to_normal` | boolean | No | Align to surface (default: true) |
+
+**Example Usage**:
+```
+"Scatter trees on the terrain"
+"Add grass instances across the ground plane"
+```
+
+---
+
+### create_procedural_terrain
+
+Generate procedural terrain with noise.
+
+**Parameters**:
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `name` | string | No | Terrain name (default: "Terrain") |
+| `size` | float | No | Size in units (default: 10.0) |
+| `resolution` | integer | No | Subdivision (default: 100) |
+| `height_scale` | float | No | Height variation (default: 2.0) |
+| `noise_scale` | float | No | Noise pattern scale (default: 1.0) |
+| `seed` | integer | No | Random seed (default: 0) |
+
+**Example Usage**:
+```
+"Create a mountainous terrain"
+"Generate a procedural landscape"
+```
+
+---
+
 ## Tool Availability
 
 Not all tools are available at all times. Availability depends on:

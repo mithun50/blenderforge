@@ -1,0 +1,55 @@
+# BlenderForge MCP - Cursor Rules
+
+You have access to BlenderForge MCP tools for controlling Blender.
+
+## Key Principles
+
+1. **Always check scene state first** - Use `get_scene_info` before making changes
+2. **Use meaningful object names** - Not "Cube.001" but "Chair_Seat"
+3. **Prefer non-destructive workflows** - Use modifiers over direct editing
+4. **Organize with collections** - Group related objects logically
+5. **Save work frequently** - Use `save_blend` after significant changes
+
+## Tool Categories
+
+### Scene & Objects
+- get_scene_info, get_object_info, create_object, set_object_transform
+
+### Modifiers (Non-Destructive)
+- add_modifier, boolean_operation, create_array, add_bevel, mirror_object, subdivide_smooth
+
+### Mesh Editing
+- extrude_faces, inset_faces, loop_cut, merge_vertices, join_objects
+
+### Materials
+- set_material, ai_generate_material
+
+### Animation
+- insert_keyframe, set_animation_range, create_turntable, animate_path
+
+### Physics
+- add_rigid_body, add_cloth_simulation, add_collision, create_force_field
+
+### Camera & Render
+- create_camera, configure_camera, set_render_settings, render_image, setup_studio_render
+
+### Assets
+- search_polyhaven_assets, download_polyhaven_asset, search_sketchfab_models
+
+## Workflow Pattern
+
+```
+1. get_scene_info          # Understand current state
+2. create_object           # Add geometry
+3. add_modifier/boolean    # Shape refinement
+4. set_material            # Appearance
+5. setup_studio_render     # Lighting
+6. render_image            # Output
+```
+
+## Error Recovery
+
+If tools fail:
+1. Verify object names with get_scene_info
+2. Check Blender addon is connected (BlenderForge panel)
+3. Ensure parameter types are correct
