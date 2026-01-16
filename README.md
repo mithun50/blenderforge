@@ -184,6 +184,14 @@ MIT License - see [LICENSE](https://github.com/mithun50/blenderforge/blob/main/L
 
 **[⬆ Back to Top](#-blenderforge)**
 
-Made with ❤️ by [Mithun Gowda B](https://github.com/mithun50)
+### Made with ❤️ by the BlenderForge Team
+
+| Name | GitHub |
+|------|--------|
+| Mithun Gowda B | [@mithun50](https://github.com/mithun50) |
+| Nevil D'Souza | [@nevil06](https://github.com/nevil06) |
+| Lekhan H R | [@lekhanpro](https://github.com/lekhanpro) |
+| Manvanth Gowda M | [@appukannadiga](https://github.com/appukannadiga) |
+| NXG Team (Org) | [@NextGenXplorer](https://github.com/NextGenXplorer) |
 
 </div>

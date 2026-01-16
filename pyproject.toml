@@ -6,10 +6,18 @@ readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 authors = [
-    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
+    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"},
+    {name = "Nevil D'Souza", email = "nevilansondsouza@gmail.com"},
+    {name = "Lekhan H R"},
+    {name = "Manvanth Gowda M", email = "appuka1431@gmail.com"},
+    {name = "NXG Team (Organization)", email = "nxgextra@gmail.com"},
 ]
 maintainers = [
-    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"}
+    {name = "Mithun Gowda B", email = "mithungowda.b7411@gmail.com"},
+    {name = "Nevil D'Souza", email = "nevilansondsouza@gmail.com"},
+    {name = "Lekhan H R"},
+    {name = "Manvanth Gowda M", email = "appuka1431@gmail.com"},
+    {name = "NXG Team (Organization)", email = "nxgextra@gmail.com"},
 ]
 keywords = ["blender", "mcp", "ai", "3d", "modeling", "claude", "llm"]
 classifiers = [

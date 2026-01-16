@@ -1,5 +1,10 @@
 # BlenderForge - AI-powered Blender Integration
-# Copyright (c) 2025 Mithun Gowda B <mithungowda.b7411@gmail.com>
+# Copyright (c) 2025 BlenderForge Team
+#   - Mithun Gowda B <mithungowda.b7411@gmail.com> (mithun50)
+#   - Nevil D'Souza <nevilansondsouza@gmail.com> (nevil06)
+#   - Lekhan H R (lekhanpro)
+#   - Manvanth Gowda M <appuka1431@gmail.com> (appukannadiga)
+#   - NXG Team (Organization) <nxgextra@gmail.com> (NextGenXplorer)
 # Licensed under the MIT License
 
 import base64
